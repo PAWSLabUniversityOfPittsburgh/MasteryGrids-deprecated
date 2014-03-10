@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+	<agg_dbstring>jdbc:mysql://localhost/aggregate</agg_dbstring>
+	<agg_dbuser></agg_dbuser>
+	<agg_dbpass></agg_dbpass>
+
+</configuration>

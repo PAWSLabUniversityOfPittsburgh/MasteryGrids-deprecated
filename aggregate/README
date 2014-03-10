@@ -1,0 +1,16 @@
+---- Aggregate ----
+version: 0.0.1
+
+Aggregate is a set of web services to provide MasteryGrids interface with 
+the course structure, content access and progress and knowledge levels of 
+students on content and topics. 
+
+Configuration:
+-----------------
+WebContent/config.xml defines the access to aggregate database
+
+Interface to User Model
+------------------------
+A java interface UMInterface.java is defined and should be implemented. 
+As a working example, the interface is implemented in PAWSUMInterface.java
+with access to PAWS lab user model services.
