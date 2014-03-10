@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServlet;
 
 public class Aggregate {
 	private boolean contrainOutcomeLevel = true; // knowledge levels will be computed only on outcome concepts
-	
+	private double sequencingThreshold = 0.7;
 	private String usr;
 	private String grp;
 	private String sid;
@@ -682,14 +682,19 @@ public class Aggregate {
 		if (topic_sequencing_score==null) return 0;
 		double[] scores = topic_sequencing_score.get(topic);
 		if (scores==null) return 0;
-		if(src.equalsIgnoreCase("question")) return scores[0];
-		if(src.equalsIgnoreCase("example")) return scores[1];
-		return 0;
+		double s = 0;
+		if(src.equalsIgnoreCase("question")) s = scores[0];
+		if(src.equalsIgnoreCase("example")) s = scores[1];
+		if (s>sequencingThreshold) s = 1.0;
+		else s = 0.0;
+		return s;
 	}
 	public double getContentSequenceScore(String content_name){
 		if (content_sequencing_score==null) return 0;
 		Double score = content_sequencing_score.get(content_name);
 		if (score==null) return 0;
+		if (score>sequencingThreshold) score = 1.0;
+		else score = 0.0;
 		return score;
 	}
 	
