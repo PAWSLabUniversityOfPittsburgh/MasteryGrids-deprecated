@@ -1,0 +1,180 @@
+<!doctype html>
+
+<html>
+
+
+<head>
+  <meta charset="utf-8" />
+  <title>Mastery Grids</title>
+  
+  <meta name="author"      content="Tomek D. Loboda" />
+  <meta name="description" content="Progress visualizer" />
+  <meta name="keywords"    content="progress,visualization" />
+  <meta name="robots"      content="index,follow,noarchive" />
+  
+  <link rel="stylesheet" type="text/css" href="style/smoothness/jquery-ui-1.10.1.custom.min.css" />
+  <link rel="stylesheet" type="text/css" href="style/main.css" />
+  
+  <script type="text/javascript" src="script/jquery-1.9.1.js"></script>
+  <script type="text/javascript" src="script/jquery-ui-1.10.1.custom.min.js"></script>
+  <script type="text/javascript" src="script/jquery.cookies.2.2.0.min.js"></script>
+  
+  <script type="text/javascript" src="script/d3.v3.min.js"></script>
+  <script type="text/javascript" src="script/colorbrewer.js"></script>
+  
+  <script type="text/javascript" src="script/$.js"></script>
+  <script type="text/javascript" src="script/vis/BarChart.js"></script>
+  <script type="text/javascript" src="script/vis.js"></script>
+</head>
+
+
+<body onload="init();">
+
+
+<!-- Loading -->
+<div id="loading"></div>
+
+
+<!-- Activities list -->
+<div id="act-lst"></div>
+<img id="act-lst-arrow" src="img/ui-tabs-arrow.png" />
+
+
+<!-- Sunburst -->
+<div id="sunburst"></div>
+
+
+<!-- Toolbar -->
+<div id="tbar" class="ui-widget-header">
+  <span id="tbar-mode-cont">
+    <span>Comparison</span>
+    <span id="tbar-mode">
+      <input type="radio" id="tbar-mode-01" name="tbar-mode" checked="checked" /><label for="tbar-mode-01">Group</label>
+      <input type="radio" id="tbar-mode-02" name="tbar-mode"                   /><label for="tbar-mode-02">Individual</label>
+    </span>
+    
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>
+  
+  <span id="tbar-rep-lvl-cont">
+    <span>Report level</span>
+    <select id="tbar-rep-lvl" onchange="repLvlSet();"></select>
+    
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>
+  
+  <span id="tbar-topic-size-cont">
+    <span>Topic size</span>
+    <select id="tbar-topic-size" onchange="topicSizeSet(this.selectedIndex, this.value);">
+      <option value="">Equal</option>
+      <option value="">---</option>
+    </select>
+    
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>
+  
+  <span id="tbar-grp-cont">
+    <span>Group</span>
+    <select id="tbar-grp" onchange="grpSet();"></select>
+    <select id="tbar-grp-cell-h" onchange="grpSetCellH(this.value);">
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+      <option value="11">11</option>
+      <option value="12">12</option>
+      <option value="13">13</option>
+      <option value="14">14</option>
+      <option value="15">15</option>
+      <option value="16">16</option>
+      <option value="17">17</option>
+      <option value="18">18</option>
+      <option value="19">19</option>
+      <option value="20">20</option>
+    </select>px
+    
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span>
+  
+  <span id="tbar-res-cont">
+    <span>Resource</span>
+    <select id="tbar-res" onchange="resSet(this.selectedIndex, true, true);">
+      <option value="all" selected="selected">All</option>
+      <option value="-">---</option>
+    </select>
+  </span>
+</div>
+
+
+<div id="grids">
+  <div id="grid-me"></div>
+  <div id="grid-grp"></div>
+  <div id="grid-others"></div>
+</div>
+
+
+<!-- Activity windows -->
+<div id="act">
+  <table cellpadding="0" cellspacing="0" align="center" id="act-tbl">
+  <tr>
+    <td id="act-title"></td>
+  <tr>
+  </tr>
+    <td id="act-td-frame">
+      <table cellpadding="0" cellspacing="0">
+      <tr>
+        <td id="act-rec-lst">
+          <div>1. The original activity</div>
+          <div class="title" title="This list below shows activities which might help you with the activity you have just had an incorrect result with. This selection is based on the history of your interaction with activities (including the very last one).">2. Recommended activities</div>
+        </td>
+        <td>
+          <iframe src="empty.html" id="act-frame"></iframe>
+          <iframe src="empty.html" id="act-frame-rec"></iframe>
+        </td>
+      </tr>
+      </table>
+    </td>
+  <tr>
+  <tr>
+    <td>
+      <div id="act-fb-diff-cont">
+        <span id="act-fb-diff-txt" title="Your feedback will help to improve the way we track your progress and consequently suggest better activities to you and other learners.">How difficult has this activity been for you?</span>
+        <span id="act-fb-diff">
+          <input type="radio" id="act-fb-diff-btn-0" name="act-fb-diff" /><label for="act-fb-diff-btn-0">Easy</label>
+          <input type="radio" id="act-fb-diff-btn-1" name="act-fb-diff" /><label for="act-fb-diff-btn-1">Medium</label>
+          <input type="radio" id="act-fb-diff-btn-2" name="act-fb-diff" /><label for="act-fb-diff-btn-2">Hard</label>
+        </span>
+      </div>
+      
+      <div id="act-fb-rec-cont">
+        <span id="act-fb-rec-txt" title="Your feedback will help to improve the way we track your progress and consequently suggest better activities to you and other learners."></span>
+        <span id="act-fb-rec">
+          <input type="radio" id="act-fb-rec-btn-2" name="act-fb-rec" /><label for="act-fb-rec-btn-2">Not sure</label>
+          <input type="radio" id="act-fb-rec-btn-0" name="act-fb-rec" /><label for="act-fb-rec-btn-0">No</label>
+          <input type="radio" id="act-fb-rec-btn-1" name="act-fb-rec" /><label for="act-fb-rec-btn-1">Yes</label>
+        </span>
+      </div>
+    </td>
+  </tr>
+  </tr>
+    <td id="act-td-btns">
+      <input type="button" id="act-close" value="Close window" />
+    </td>
+  </tr>
+  </table>
+</div>
+
+
+<!-- Footer -->
+<!-- <div id="footer"><nobr>Tomek D Loboda &bull; 2013</nobr></div> -->
+
+
+</body>
+
+
+</html>
