@@ -165,12 +165,13 @@ public class SequenceContent {
 			contentSequencing.put(content, rank);
 		}
 		
-		/* Step 4: calculate the rank of topics by aggregating the rank of its contents in contentRankMap 
-		 * Currently we only consider examples and questions.
-		 * The results are stored in topicSequencing map<String,double[]). The first value in double[] is obtained by calculating the 
-		 * ratio of the questions' rank. The second value is obtained by calculating the ratio of examples' rank. 
-		 * Ratio is obtained by sum of contents' rank over number of contents in each topic.
-		 * Ratio is between 0 and 1.*/
+		/* Step 4: calculate the rank of topics for sequencing task. Each topic is assigned the rank of content which 
+		 * has the maximum rank among all contents in that topic.
+		 * Currently we only consider examples and questions contents for calculating topics rank.
+		 * The results are stored in topicSequencing map<String,double[]). For each topic, the first value in double[] is obtained
+		 * by calculating the maximum rank of the contents of type question and the second value is obtained by calculating the 
+		 * maximum rank of the contents of type example.
+		 * Topic rank is between 0 and 1.*/
 		String topic;
 		List<String>[] list;
 		List<String> questionList;
@@ -185,19 +186,17 @@ public class SequenceContent {
 			rank = 0.0;
 			for (String question : questionList)
 			{
-				rank += contentSequencing.get(question);
+				if (contentSequencing.get(question) > rank)
+					rank = contentSequencing.get(question);
 			}
-			if (rank != 0.0)
-				rank /= questionList.size();
-			topicRank[0] = rank;
+			topicRank[0] = rank; //maximum rank of contents of type question
 			rank = 0.0;
 			for (String example : exampleList)
 			{
-				rank += contentSequencing.get(example);
+				if (contentSequencing.get(example) > rank)
+					rank = contentSequencing.get(example);
 			}
-			if (rank != 0.0)
-				rank /= exampleList.size();
-			topicRank[1] = rank;
+			topicRank[1] = rank;//maximum rank of contents of type example
 			topicSequencing.put(topic, topicRank);
 			//System.out.println(topic+"\t"+rank);
 		}
