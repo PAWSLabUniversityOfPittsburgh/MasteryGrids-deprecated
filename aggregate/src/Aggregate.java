@@ -862,7 +862,8 @@ public class Aggregate {
 		   	    "  reportLevels:[{id:\"p\",name:\"Progress\"},{id:\"k\",name:\"Knowledge\"}],\n" +
 		   	    "  resources:[\n" +
 		   	    "    {id:\"qz\",name:\"Questions\", " +
-		   	    "updateStateOn: {done: true, winClose: false, winCloseIfAct: false}},\n" +
+		   	    //"updateStateOn: {done: true, winClose: false, winCloseIfAct: false}},\n" +
+		   	    "updateStateOn: {done: false, winClose: true, winCloseIfAct: false}},\n" +
 		   	    "    {id:\"ex\",name:\"Examples\", " +
 		   	    "updateStateOn: {done: false, winClose: true, winCloseIfAct: false}}\n" +
 		   	    "  ]";

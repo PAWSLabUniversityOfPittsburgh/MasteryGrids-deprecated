@@ -14,3 +14,11 @@ Interface to User Model
 A java interface UMInterface.java is defined and should be implemented. 
 As a working example, the interface is implemented in PAWSUMInterface.java
 with access to PAWS lab user model services.
+
+Note for MySQL configuration
+----------------------------
+Set a bigger capacity for MySQL system variable group_concat_max_len
+We setted in 
+group_concat_max_len = 8192
+This is necessary to support queries retrieving long text whent using group_concat function.
+
