@@ -1072,7 +1072,7 @@ function loadData() {
   
   (state.args.dataLive
     ? $call("GET", "/um-vis/data.js", null, loadData_cb, true, false)
-    : $call("GET", "http://adapt2.sis.pitt.edu/aggregate/GetContentLevels?usr=" + state.curr.usr + "&grp=" + state.curr.grp + "&sid=" + state.curr.sid + "&cid=" + state.curr.cid + "&mod=all&avgtop=" + state.args.dataTopNGrp, null, loadData_cb, true, false)
+    : $call("GET", CONST.uriServer + "GetContentLevels?usr=" + state.curr.usr + "&grp=" + state.curr.grp + "&sid=" + state.curr.sid + "&cid=" + state.curr.cid + "&mod=all&avgtop=" + state.args.dataTopNGrp, null, loadData_cb, true, false)
   );
 }
 
