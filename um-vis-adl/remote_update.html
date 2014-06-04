@@ -1,0 +1,44 @@
+<!-- 
+     Put this file in the um-vis server folder and include it in an 
+     iframe in the content web page/script (e.g. the answer page of
+     quizjet) passing two parameters: 
+     - action (with values actLoad, actSubmit or actDone) and 
+     - param (with values depending on the action. For 
+       action = actDonem, param is the result) 
+-->
+<!DOCTYPE html>
+<html>
+<head>
+<title>MG notificator</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+<script type="text/javascript">
+//alert("calling remote_update: "+document.location.search.substr(1));
+
+try{
+
+    if (parent.parent.vis) {
+      //alert("parent.parent object vis exist");
+      var action = "";
+      var param = "";
+	  var A = document.location.search.substr(1).split("&");
+	  for (var i = 0; i < A.length; i++) {
+	    var B = A[i].split("=");
+	    
+	    if (B[0] === "action") action = B[1];
+	    if (B[0] === "param") param = B[1];
+	  }
+	  //alert("action = " + action);
+	  if(action === "actLoad")    parent.parent.vis.actLoad();
+	  if(action === "actSubmit")  parent.parent.vis.actSubmit();
+	  if(action === "actDone")    {
+	    parent.parent.vis.actDone(parseInt(param));
+	  }
+	  
+	}
+}catch(err){}
+
+</script>
+</head>
+<body>
+</body>
+</html>

@@ -3,5 +3,10 @@
 	<agg_dbstring>jdbc:mysql://localhost/aggregate</agg_dbstring>
 	<agg_dbuser></agg_dbuser>
 	<agg_dbpass></agg_dbpass>
-
+    <agg_uminterface_classname>PAWSUMInterface</agg_uminterface_classname>
+    <agg_uminterface_key>UNKNOWN</agg_uminterface_key>
+    <agg_sequencing>yes</agg_sequencing>
+    <agg_sequencing_threshold>0.7</agg_sequencing_threshold>
+    <agg_verbose>yes</agg_verbose>
+    <agg_include_null_users>no</agg_include_null_users>
 </configuration>

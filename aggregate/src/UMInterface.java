@@ -3,90 +3,121 @@
  * from User Model service
  * @author Julio Guerra (PAWS lab)
  * @date 2014/03/07
-*/
+ */
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
 public interface UMInterface {
-	
-	/**
-	 * Gets a map with each concept identifier and the knowledge level of the user in it
-	 * @author Julio Guerra (PAWS lab)
-	 * @date 2014/03/07 
-	 * @param  usr     the user
-	 * @param  domain  additional information for UM to determine which concepts to consider
-	 * @param  grp     additional information required by UM to identify the group (class) 
-	 * @return         a map between each concept and the knowledge level of the user in it.
-	 */
-	public HashMap<String,Double> getConceptLevels(String usr, String domain, String grp);
-	
-	/**
-	 * Gets name and email of the user
-	 * @author Julio Guerra (PAWS lab)
-	 * @date 2014/03/07 
-	 * @param  usr   the username
-	 * @return       a string array with the name and email of the user.
-	 */	
-	public String[] getUserInfo(String usr);
-	
-	/**
-	 * Accesses the list of students/users in a class (grp)
-	 * @author Julio Guerra (PAWS lab)
-	 * @date 2014/03/07 
-	 * @param  grp   the group identifier (or mnemonic)
-	 * @return       and ArrayList in which each element is a string array containing user information: username, name, email.
-	 */ 
-	public ArrayList<String[]> getClassList(String grp);
-	
-	
-	/**
-	 * Gets the activity of the user in content of type question
-	 * @author Julio Guerra (PAWS lab)
-	 * @date 2014/03/07 
-	 * @param  usr     the username
-	 * @param  domain  additional information for UM to determine which content to include
-	 * @return         a hash map in which the key is the content identifier (string) and 
-	 *                 the value is a string array of length 3 containing: the content 
-	 *                 identifier, the number of attempts, and the number of succeeded attempts 
-	 */	
-	public HashMap<String, String[]> getUserQuestionsActivity(String usr, String domain);
+        
+    /**
+     * Gets name and email of the user
+     * 
+     * @author Julio Guerra (PAWS lab)
+     * @date 2014/03/07
+     * @param usr
+     *            the username
+     * @return a string array with the name and email of the user.
+     */
+    public String[] getUserInfo(String usr, String key);
 
-	
-	/**
-	 * Gets the activity of the user in content of type example
-	 * @author Julio Guerra (PAWS lab)
-	 * @date 2014/03/07 
-	 * @param  usr     the username
-	 * @param  domain  additional information for UM to determine which content to include
-	 * @return         a hash map in which the key is the content identifier (string) and 
-	 *                 the value is a string array of length 4 containing: the content 
-	 *                 identifier, the number of lines displayed, the number of distinct 
-	 *                 lines displayed by the user, and the total number of commented lines 
-	 *                 the example has. 
-	 */	
-	// 1: number of actions performed by the student in the example (lines displayed) 
-	// 2: number of distinct actions performed by the student in the example
-	// 3: total number of commented lines in the example
-	public HashMap<String, String[]> getUserExamplesActivity(String usr, String domain);
-	
-	/**
-	 * Gets the activity of the user all kind of content
-	 * @author Julio Guerra (PAWS lab)
-	 * @date 2014/03/07 
-	 * @param  usr     the username
-	 * @param  domain  additional information for UM to determine which content to include
-	 * @return         a hash map in which the key is the content identifier (string) and 
-	 *                 the value is a string array of length 8 containing: (0) the content 
-	 *                 identifier, (1) the content type (question, example, etc), (2) the 
-	 *                 total number of sub activities the content has (in questions it is 0,
-	 *                 in examples is the total number of commented lines), (3) number of 
-	 *                 attempts (not defined for examples), (4) the number of succeeded 
-	 *                 attempts (not defined for examples), (5) the number of sub activities 
-	 *                 done by the user (not defined in questions, lines displayed in examples),
-	 *                 (6) the distinct sub activities done (not defined for questions, 
-	 *                 distinct lines viewed in examples), and (7) additional activity 
-	 *                 information (for other kind of content).  
-	 */		
-	public HashMap<String, String[]> getUserContentActivity(String usr, String domain);
+    /**
+     * Accesses the list of students/users in a class (grp)
+     * 
+     * @author Julio Guerra (PAWS lab)
+     * @date 2014/03/07
+     * @param grp
+     *            the group identifier (or mnemonic)
+     * @return and ArrayList in which each element is a string array containing
+     *         user information: username, name, email.
+     */
+    public ArrayList<String[]> getClassList(String grp, String key);
+
+    /**
+     * This method communicates with the User Model get or compute the knowledge
+     * and progress levels of the user in all the content items of the course.
+     * The contentList hashmap provides a finite list of content available to
+     * the course and each content specify it's provider. For different
+     * providers, the implementation of this method should change and eventually
+     * incorporate additional steps. The method returns
+     * 
+     * @param usr
+     *            the user name
+     * @param grp
+     *            the group id
+     * @param sid
+     *            the session id
+     * @param cid
+     *            the course id
+     * @param domain
+     *            the domain (java, sql, etc)
+     * @param maxRecommendations
+     *            the maximum number of recommendation to include in the list
+     * @param contentList
+     *            each key represent a content item, identified by the
+     *            content_name and each value is an String[] with:<br />
+     *            0: resource name (id) 1: display name 2: url 3: description 4:
+     *            comment 5: provider id
+     * @param usr
+     *            the user name
+     * @param contentList
+     * @param options  
+     * 
+     */
+    public HashMap<String, double[]> getContentSummary(
+            String usr, String grp, String sid, String cid, String domain,
+            HashMap<String, String[]> contentList,
+            ArrayList<String> options);
+
+    /**
+     * Query for Recommendations. If no recommendations or no recommender
+     * server, return null
+     * 
+     * @param usr
+     *            the user name
+     * @param grp
+     *            the group id
+     * @param sid
+     *            the session id
+     * @param cid
+     *            the course id
+     * @param domain
+     *            the domain (java, sql, etc)
+     * @param lastContentId
+     *            the content identifier (content_name) of the last content
+     *            completed or visited by the user
+     * @param lastContentResult
+     *            the result of the activity performed (lastContentId). Most of
+     *            the cases is "1" or "0" (for exercises solved correctly or
+     *            incorrectly), but for other kind of content could take another
+     *            values
+     * @param lastContentProvider
+     *            the provider id of the last content item attempted
+     * @param maxRecommendations
+     *            the maximum number of recommendation to include in the list
+     * @param contentList
+     *            each key represent a content item, identified by the
+     *            content_name and each value is an String[] with:<br />
+     *            0: resource name (id) 1: display name 2: url 3: description 4:
+     *            comment 5: provider id ...
+     * @return An ordered ArrayList of recommendations. Each recommendation is
+     *         an ArrayLst of string containing:<br />
+     *         0 : recommendation id<br />
+     *         1 : topic id (topic name in aggregate)<br />
+     *         2 : resource type id (resource name in aggregate)<br />
+     *         3 : recommended content id (content name in aggregate)<br />
+     *         4 : recommended score (as a double)<br />
+     *         5 : feedback text (text to show in the feedback question)<br />
+     *         6 : feedback stored value (if user gave feedback before)<br />
+     * 
+     */
+    public ArrayList<ArrayList<String>> getRecommendations(String usr,
+            String grp, String sid, String cid, String domain, String lastContentId,
+            String lastContentResult, String lastContentProvider,
+            int maxRecommendations, HashMap<String, String[]> contentList);
+
+    public HashMap<String, Double> getContentSequencingScores(
+            String usr, String grp, String sid, String cid, String domain,
+            HashMap<String, String[]> contentList);
+    
 }
