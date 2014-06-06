@@ -57,6 +57,7 @@
       // (2) Data:
       if ($("data-live")                   .value === "0" ) params.push("data-live=0");
       if ($("data-top-n-grp")              .value !== "10") params.push("data-top-n-grp=" + $("data-top-n-grp").value);
+      if ($("data-req-other-learners")     .value === "1" ) params.push("data-req-other-learners=1");
       
       // (3) Default values:
       if ($("def-val-rep-lvl-id")          .value !== "" )  params.push("def-val-rep-lvl-id=" + $("def-val-rep-lvl-id").value);
@@ -149,7 +150,7 @@
 
 <tr>
   <td></td>
-  <td class="name lvl-1">The <i>n</i> in "Top n" group</td>
+  <td>The <i>n</i> in "Top n" group</td>
   <td>
     <select id="data-top-n-grp">
       <option value="1">1</option>
@@ -162,6 +163,17 @@
       <option value="8">8</option>
       <option value="9">9</option>
       <option value="10" selected="selected">10</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td>Request other learners</td>
+  <td>
+    <select id="data-req-other-learners">
+      <option value="0">No</option>
+      <option value="1">Yes</option>
     </select>
   </td>
 </tr>

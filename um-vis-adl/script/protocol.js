@@ -14,8 +14,9 @@
   context: {
     learnerId : "LEARNER.id",  // ID of the current learner (i.e., the one requesting the data)
     group     : {
-      id   : "IS172013Spring",
-      name : "Java Programming, Spring 2013"
+      id         : "IS172013Spring",
+      name       : "Java Programming, Spring 2013",
+      learnerCnt : 17
     }
   },
   
@@ -160,6 +161,8 @@
   completeness : 0.9,  // for examples, readings, etc. [not needed yet]
   successRate  : 0.6,  // for quizes, etc. [not needed yet]
   
+  allowManualRecRetrieval : true,  // [optional, i.e., defaults to false]
+  
   concepts     : [     // [not needed yet]
     CONCEPT,
     ...
@@ -263,9 +266,9 @@
   activities: {
     "class": {
       "quiz": [
-        "quiz01": { values: { "k": 0.0, "p": 1.0 }, sequencing: },
-        "quiz02": { values: { "k": 0.2, "p": 0.8 }, sequencing: },
-        "quiz03": { values: { "k": 0.4, "p": 0.6 }, sequencing: },
+        "quiz01": { values: { "k": 0.0, "p": 1.0 }, sequencing: 0.0 },
+        "quiz02": { values: { "k": 0.2, "p": 0.8 }, sequencing: 0.0 },
+        "quiz03": { values: { "k": 0.4, "p": 0.6 }, sequencing: 0.0 },
       ]
     }
   }
