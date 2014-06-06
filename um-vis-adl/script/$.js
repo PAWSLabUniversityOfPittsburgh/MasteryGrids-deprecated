@@ -1,3 +1,6 @@
+/*
+This file has a set of useful functions
+*/
 var $CONST = {
   align : {
     h: { n:0, c:1, ll:2, lr:3, rl:4, rr:5 },
