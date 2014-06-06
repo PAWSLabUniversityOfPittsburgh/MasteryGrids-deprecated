@@ -1172,7 +1172,7 @@ public class Aggregate {
         for (String[] learner : class_list) {
             String ishidden = "false";
             if (non_students.get(learner[0]) != null) ishidden = "true";
-            if(c<n-1 || learner[0].equalsIgnoreCase(usr)){
+            if(c<n-1 || learner[0].equalsIgnoreCase(usr) || n == -1){
                 learners += "{\n  id:\"" + learner[0] + "\",name:\"" + learner[1]
                         + "\",isHidden:" + ishidden + ",\n  "
                         + genJSONLearnerState(learner[0]) + "\n},\n";                
