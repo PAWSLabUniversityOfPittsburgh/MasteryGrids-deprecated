@@ -106,10 +106,10 @@ public class GetContentLevels extends HttpServlet {
             aggregate.computeGroupLevels(false, top);
             if(verbose) System.out.println("Compute group levels     " + (Calendar.getInstance().getTimeInMillis()-time1));
             
-            if(cm.agg_sequencing.equalsIgnoreCase("yes")){
+            if(cm.agg_proactiverec_enabled || cm.agg_reactiverec_enabled){
                 time1 = Calendar.getInstance().getTimeInMillis();
-                aggregate.sequenceContent();
-                if(verbose) System.out.println("Sequencing               " + (Calendar.getInstance().getTimeInMillis()-time1));
+                aggregate.fillRecommendations("", "", 0); // with these parameters, only proactive recommendations are included (sequencing)
+                if(verbose) System.out.println("Recommendations            " + (Calendar.getInstance().getTimeInMillis()-time1));
             }
             
             time1 = Calendar.getInstance().getTimeInMillis();
@@ -128,14 +128,16 @@ public class GetContentLevels extends HttpServlet {
             if(verbose) System.out.println("Get class levels         " + (Calendar.getInstance().getTimeInMillis()-time1));
             
             // compute sequencing
-            if(cm.agg_sequencing.equalsIgnoreCase("yes")){
-                time1 = Calendar.getInstance().getTimeInMillis();
-                aggregate.sequenceContent();
-                if(verbose) System.out.println("Sequencing               " + (Calendar.getInstance().getTimeInMillis()-time1));
+//            if(cm.agg_sequencing.equalsIgnoreCase("yes")){
+//                time1 = Calendar.getInstance().getTimeInMillis();
+//                aggregate.sequenceContent();
+//                if(verbose) System.out.println("Sequencing               " + (Calendar.getInstance().getTimeInMillis()-time1));
+//            }
+            if(cm.agg_proactiverec_enabled || cm.agg_reactiverec_enabled){
+	            time1 = Calendar.getInstance().getTimeInMillis();
+	            aggregate.fillRecommendations(last_content_id, last_content_res, number_recommendation);
+	            if(verbose) System.out.println("Recommendations          " + (Calendar.getInstance().getTimeInMillis()-time1));
             }
-            time1 = Calendar.getInstance().getTimeInMillis();
-            aggregate.fillRecommendations(last_content_id, last_content_res, number_recommendation);
-            if(verbose) System.out.println("Recommendations          " + (Calendar.getInstance().getTimeInMillis()-time1));
             
             time1 = Calendar.getInstance().getTimeInMillis();
             aggregate.fillFeedbackForm(last_content_id, last_content_res);

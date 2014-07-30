@@ -22,7 +22,6 @@ import java.util.Map;
  */
 public class Aggregate {
     private boolean verbose; // for "old-fashioned" debugging purposes
-    private double sequencingThreshold;
     
     public ConfigManager cm;
     
@@ -39,6 +38,7 @@ public class Aggregate {
     // some use HashMap to speed up computations
     public ArrayList<String[]> topicList; // each has: topic name (string id), display name (string), order (int), visibility (1/0)
     public HashMap<String, String[]> contentList; // each content has: resource name (string id), display name, url, description, comment, provider_id (string id)
+    public HashMap<String, String> mapContentTopic; // maps content id and topic id (the first topic containing the content)
     public ArrayList<String[]> resourceList; // resource name , resource display name (ex: qz , question)
     public HashMap<String, Integer> resourceMap; // store resource name and position in the resourceList
     public HashMap<String, ArrayList<String>[]> topicContent; // topic name , one arraylist for each resource (type) in the order of resorceList 
@@ -50,6 +50,7 @@ public class Aggregate {
     public ArrayList<String[]> class_list;
     public HashMap<String, String> non_students;
     
+    // proactive recommendation scores per content and per topic
     public HashMap<String, Double> contentSequencingScores;
     public HashMap<String, double[]> topicSequencingScores; // array of double corresponding to the dimension of resources
 
@@ -65,7 +66,7 @@ public class Aggregate {
     public Map<String, Map<String, double[]>> peers_topic_levels;
     public Map<String, Map<String, double[]>> peers_content_levels;
 
-    // recommendation set
+    // recommendation set (reactive recommendations)
     public ArrayList<ArrayList<String>> recommendation_list;
     // feedback set
     public ArrayList<ArrayList<String>> activity_feedback_form_items; 
@@ -73,6 +74,7 @@ public class Aggregate {
 
     // public um2DBInterface um2_db;
     public UMInterface um_interface;
+    public RecInterface rec_interface;
     public AggregateDB agg_db;
 
     public static DecimalFormat df = new DecimalFormat("#.##");
@@ -101,7 +103,6 @@ public class Aggregate {
         this.cm = cm;
         
         verbose = cm.agg_verbose.equalsIgnoreCase("yes");        
-        sequencingThreshold = cm.agg_sequencing_threshold; 
         
         openDBConnections();
 
@@ -125,10 +126,20 @@ public class Aggregate {
             e.printStackTrace();
         }
 
+        try{
+            rec_interface = (RecInterface) Class.forName(cm.agg_recinterface_classname).newInstance();
+            
+        }catch(Exception e){
+            // @@@@ um_interface = new NullUMInterface();
+            e.printStackTrace();
+        }
         
+        // the userdata array contains user name, email and parameters for configuration
         String[] userdata = um_interface.getUserInfo(usr, cm.agg_uminterface_key);
         usr_name = userdata[0];
         usr_email = userdata[1];
+        if(userdata.length > 2) overwriteConfigForUser(userdata[2]);
+        
 
         class_list = um_interface.getClassList(grp, cm.agg_uminterface_key);
         non_students = agg_db.getNonStudents(grp); // special non students (instructor, researcher)
@@ -147,6 +158,7 @@ public class Aggregate {
         // System.out.println("content got");
 
         topicContent = agg_db.getTopicContent2(cid, resourceMap);
+        mapContentToTopic();
         // System.out.println("topic content");
 
         // This part computed the user model if updateUM = true or if the user
@@ -159,7 +171,7 @@ public class Aggregate {
             storePrecomputedModel(usr);
         }
         
-
+        
         closeDBConnections();
     }
     
@@ -173,8 +185,7 @@ public class Aggregate {
         this.cm = cm;
 
         verbose = cm.agg_verbose.equalsIgnoreCase("yes");        
-        sequencingThreshold = cm.agg_sequencing_threshold; 
-
+        
         um_interface = new PAWSUMInterface();
         openDBConnections();
 
@@ -191,15 +202,16 @@ public class Aggregate {
         nTopicLevels = resourceList.size() * 2; // the dimension of the topic levels array. For each resource there is a level of knowledge and a level of progress
         nContentLevels = 2; // the dimension of the content levels array. For each resource there is a level of knowledge and a level of progress
 
-
+        String[] userdata = um_interface.getUserInfo(usr, cm.agg_uminterface_key);
+        if(userdata.length > 2) overwriteConfigForUser(userdata[2]);
+        
         class_list = um_interface.getClassList(grp,cm.agg_uminterface_key);
 
         topicList = agg_db.getTopicList(cid);
 
         contentList = agg_db.getContent2(cid);
-        //content_concepts = agg_db.getContentConcepts(course_id);
+        mapContentToTopic();
 
-        // topic_examples = agg_db.getTopicExamples(grp); // @@@@
         topicContent = agg_db.getTopicContent2(cid, resourceMap);
 
         closeDBConnections();
@@ -295,29 +307,6 @@ public class Aggregate {
 
     }
 
-    // has to move sequencing out 
-    public void sequenceContent() {
-        contentSequencingScores = this.um_interface.getContentSequencingScores(usr, grp, sid, cid, domain, contentList);
-        // if there is sequencing, topic sequencing will be for each resource the maximum 
-        // sequencing score among the contained content
-        if(contentSequencingScores != null ){
-            topicSequencingScores = new HashMap<String, double[]>();
-            for (String[] topic_data : topicList) {
-                ArrayList<String>[] topic_content = topicContent.get(topic_data[0]);
-                double[] seqScores = new double[topic_content.length];
-                for(int i=0;i<topic_content.length;i++){
-                    ArrayList<String> contents = topic_content[i];
-                    for(String content_name: contents){
-                        double s = contentSequencingScores.get(content_name);
-                        if (s>seqScores[i]){
-                            seqScores[i] = s; 
-                        }
-                    }
-                }
-                topicSequencingScores.put(topic_data[0], seqScores);
-            }
-        }
-    }
     
     public double getTopicSequenceScore(String topic, String src) {
         if (topicSequencingScores == null)
@@ -329,10 +318,10 @@ public class Aggregate {
         Integer i = resourceMap.get(src);
         if (i != null) s = scores[i];
         
-        if (s > sequencingThreshold)
-            s = 1.0;
-        else
-            s = 0.0;
+//        if (s > cm.agg_proactiverec_threshold)
+//            s = 1.0;
+//        else
+//            s = 0.0;
         return s;
     }
 
@@ -342,10 +331,10 @@ public class Aggregate {
         Double score = contentSequencingScores.get(content_name);
         if (score == null)
             return 0;
-        if (score > sequencingThreshold)
-            score = 1.0;
-        else
-            score = 0.0;
+//        if (score > cm.agg_proactiverec_threshold)
+//            score = 1.0;
+//        else
+//            score = 0.0;
         return score;
     }
     
@@ -764,11 +753,70 @@ public class Aggregate {
         }
     }
 
+    
+    // @@@@ RECOMMENDATIONS getting the recommendations from the recommendation interface
+    // it will fill reactive recommendations and proactive scoring (sequencing)
     public void fillRecommendations(String last_content_id, String last_content_res, int n) {
         // @@@ get the content provider
-        String last_content_provider = "unknown";
-        recommendation_list = um_interface.getRecommendations(usr, grp, sid, cid, domain, 
-                last_content_id, last_content_res, last_content_provider, n, contentList);
+        String last_content_provider = ""; 
+        if (last_content_id != null && last_content_id.length()>0) 
+        	last_content_provider = getProviderByContentName(last_content_id);
+        //recommendation_list = um_interface.getRecommendations(usr, grp, sid, cid, domain, last_content_id, last_content_res, last_content_provider, n, contentList);
+        
+        ArrayList<ArrayList<String[]>> all_rec = rec_interface.getRecommendations(usr, grp, sid, cid, domain, last_content_id, last_content_res, last_content_provider, 
+        		contentList, cm.agg_reactiverec_max, cm.agg_proactiverec_max, cm.agg_reactiverec_threshold, cm.agg_proactiverec_threshold,
+        		cm.agg_reactiverec_method, cm.agg_proactiverec_method);
+        if (all_rec != null){
+            // reactive recommendations
+        	recommendation_list = new ArrayList<ArrayList<String>>();
+            if(cm.agg_reactiverec_enabled){
+            	ArrayList<String[]> reactive_rec = all_rec.get(0);
+                for(String[] rec : reactive_rec){
+                	ArrayList<String> r = new ArrayList<String>();
+                	r.add(rec[0]); // rec item id
+                	String topic = "";
+                	//System.out.println(rec[2]);
+                	if(mapContentTopic != null) topic = mapContentTopic.get(rec[2]);
+                	if(topic == null) topic = "";
+                	r.add(topic);  // topic id
+                	r.add(contentList.get(rec[2])[0]); // resource id
+                	r.add(rec[2]);  // content id
+                	r.add(rec[3].substring(0,5)); // score
+                	r.add("Do you think the above example will help you to solve the original problem?"); // feedback question
+                	r.add("-1"); // stored value of the feedback
+                	recommendation_list.add(r);
+                }            	
+            }
+            
+            // proactive recommendations
+            if(cm.agg_proactiverec_enabled){
+            	ArrayList<String[]> proactive_rec = all_rec.get(1);
+            	contentSequencingScores = new HashMap<String, Double>();
+            	topicSequencingScores = new HashMap<String, double[]>();
+            
+            	for(String[] rec : proactive_rec){
+                	double score = 0;
+                	try {score = Double.parseDouble(rec[3]);}catch(Exception e){}
+                	contentSequencingScores.put(rec[2],score);
+                }
+
+                for (String[] topic_data : topicList) {
+                    ArrayList<String>[] topic_content = topicContent.get(topic_data[0]);
+                    double[] seqScores = new double[topic_content.length];
+                    for(int i=0;i<topic_content.length;i++){
+                        ArrayList<String> contents = topic_content[i];
+                        for(String content_name: contents){
+                            Double s = contentSequencingScores.get(content_name);
+                            if(s != null)
+                            if (s>seqScores[i]){
+                                seqScores[i] = s; 
+                            }
+                        }
+                    }
+                    topicSequencingScores.put(topic_data[0], seqScores);
+                }
+            }
+        }
     }
 
 
@@ -781,8 +829,28 @@ public class Aggregate {
     }
 
 
+    public void mapContentToTopic(){
+    	mapContentTopic = new HashMap<String, String>();
+    	for (String[] topic : topicList) {
+            ArrayList<String>[] oneTypeContents = topicContent.get(topic[0]);
+            for(int i=0;i<oneTypeContents.length;i++){
+            	for (String content_name : oneTypeContents[i]) {
+            		if(!mapContentTopic.containsKey(content_name)){
+            			mapContentTopic.put(content_name,topic[0]);
+            		}
+            	}
+            }
+            
+        }
+    	
+//    	for (Map.Entry<String, String> content : mapContentTopic.entrySet()) {
+//            String content_name = content.getKey();
+//            String topic_name = content.getValue();
+//            System.out.println(content_name + " IN " + topic_name);
+//        }
+    }
 
-    // DEV
+    // DEPRECATED
     public String[] getTopicByContentName(String content_name) {
         String[] res = null;
         for (String[] topic : topicList) {
@@ -802,6 +870,45 @@ public class Aggregate {
         return null;
     }
 
+    public String getProviderByContentName(String content_name){
+    	String provider = "unknown";
+    	String[] contentData = contentList.get(content_name);
+    	if(contentData != null){
+    		provider = contentData[5];
+    	} 
+    	
+    	return provider;
+    }
+    
+    // parameters can be
+    // proactive_rec=yes, reactive_rec=yes, 
+    // proactive_rec_threshold, reactive_rec_threshold,
+    // proactive_rec_max, reactive_rec_max,
+    // proactive_rec_method, reactive_rec_method,
+    //
+    //
+    public void overwriteConfigForUser(String parameters){
+    	if (parameters == null || parameters.length()==0) return;
+    	String[] params = parameters.split(",");
+    	for(String param : params){
+    		String[] pair = param.split("=");
+    		if(pair[0].equalsIgnoreCase("proactive_rec")) cm.agg_proactiverec_enabled = pair[1].equalsIgnoreCase("yes");
+    		if(pair[0].equalsIgnoreCase("reactive_rec")) cm.agg_reactiverec_enabled = pair[1].equalsIgnoreCase("yes");
+    		if(pair[0].equalsIgnoreCase("proactive_rec_threshold")) 
+    			try {cm.agg_proactiverec_threshold = Double.parseDouble(pair[1]);} catch(Exception e) {}
+    		if(pair[0].equalsIgnoreCase("reactive_rec_threshold")) 
+    			try {cm.agg_reactiverec_threshold = Double.parseDouble(pair[1]);} catch(Exception e) {}
+    		if(pair[0].equalsIgnoreCase("proactive_rec_max")) 
+   			    try {cm.agg_proactiverec_max  = Integer.parseInt(pair[1]);} catch(Exception e) {}
+    		if(pair[0].equalsIgnoreCase("reactive_rec_max")) 
+   			    try {cm.agg_reactiverec_max  = Integer.parseInt(pair[1]);} catch(Exception e) {}
+    		if(pair[0].equalsIgnoreCase("proactive_rec_method")) cm.agg_proactiverec_method = pair[1].trim();
+    		if(pair[0].equalsIgnoreCase("reactive_rec_method")) cm.agg_reactiverec_method = pair[1].trim();
+    	}
+    }
+    
+    
+    
     public boolean trackAction(String action, String comment) {
         boolean connection_was_open = false;
         try {

@@ -1,12 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <configuration>
-	<agg_dbstring>jdbc:mysql://localhost/aggregate</agg_dbstring>
-	<agg_dbuser></agg_dbuser>
-	<agg_dbpass></agg_dbpass>
+	<!-- DATABASE -->
+	<agg_dbstring>jdbc:mysql://localhost:8889/aggregate</agg_dbstring>
+	<agg_dbuser>root</agg_dbuser>
+	<agg_dbpass>root</agg_dbpass>
+    
+	<!-- UM INTERFACE -->
     <agg_uminterface_classname>PAWSUMInterface</agg_uminterface_classname>
     <agg_uminterface_key>UNKNOWN</agg_uminterface_key>
-    <agg_sequencing>yes</agg_sequencing>
-    <agg_sequencing_threshold>0.7</agg_sequencing_threshold>
+    
+	<!-- RECOMMENDATION INTERFACE -->
+    <agg_recinterface_classname>PAWSRecInterface</agg_recinterface_classname>
+    
+	<!-- RECOMMENDATION DEFAULT PARAMETERS -->
+    <agg_proactiverec_enabled>yes</agg_proactiverec_enabled>
+    <agg_proactiverec_threshold>-1</agg_proactiverec_threshold> <!-- -1: let the recommendation server to decide, otherwise a number between 0 and 1 -->
+    <agg_proactiverec_method>km</agg_proactiverec_method> <!-- leave empty to make recommendation server to use default -->
+    <agg_proactiverec_max>3</agg_proactiverec_max>
+    <agg_reactiverec_enabled>yes</agg_reactiverec_enabled>
+    <agg_reactiverec_threshold>-1</agg_reactiverec_threshold> <!-- -1: let the recommendation server to decide, otherwise a number between 0 and 1 -->
+    <agg_reactiverec_method>CSSIM</agg_reactiverec_method> <!-- leave empty to make recommendation server to use default -->
+    <agg_reactiverec_max>5</agg_reactiverec_max>
+
+	<!-- VERBOSE -->
     <agg_verbose>yes</agg_verbose>
+
+	<!-- DATA INCLUDED -->
     <agg_include_null_users>no</agg_include_null_users>
 </configuration>

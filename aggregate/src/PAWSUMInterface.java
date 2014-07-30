@@ -229,40 +229,7 @@ public class PAWSUMInterface implements UMInterface {
         return contentSummary;
     }
 
-    // Get recommendations. Recommendations are deactivated now, while moving
-    // recommendation engine to
-    // a external service
-    public ArrayList<ArrayList<String>> getRecommendations(
-            String usr, String grp, String sid, String cid, String domain, 
-            String lastContentId, String lastContentResult, String lastContentProvider,
-            int maxRecommendations,
-            HashMap<String, String[]> contentList) {
-        // generate a unique recommendation id
-        String rec_id = "" + (System.nanoTime() / 1000);
-        // ...
-        return null;
-    }
     
-    
-    public HashMap<String, Double> getContentSequencingScores(
-            String usr, String grp, String sid, String cid, String domain,
-            HashMap<String, String[]> contentList){
-        
-        HashMap<String, Double> res = new HashMap<String, Double>();
-        
-        // this is a dummy random generated sequencing
-        for (Map.Entry<String, String[]> content : contentList.entrySet()) {
-            String content_name = content.getKey();
-            double score = 0.75*Math.random();
-            res.put(content_name, score);
-            //System.out.println(content_name + "    " + score);
-        }
-        
-        if(this.kcByContent != null && this.kcSummary != null && this.contentSummary != null){
-            // call the service...
-        }
-        return res;
-    }
     
     
     // ////////////////////////////////////////////
