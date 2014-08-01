@@ -1,0 +1,516 @@
+<!doctype html>
+
+<html>
+
+
+<head>
+  <meta charset="utf-8" />
+  <title>Mastery Grids: Launcher</title>
+  
+  
+  <style type="text/css">
+    body                     { background-color: #f5f5f5; margin-bottom: 20px; }
+    body,table,select,input  { font-family: Calibri,Tahoma,sans-serif; font-size: 15px; }
+    div.title                { margin-bottom: 10px; border-bottom: 1px solid #bbbbbb; font-size: 24px; font-weight: bold; }
+    input[type="text"]       { background-color: #ffffff; border: 1px solid #888888; padding-left: 4px; }
+    input.launch             { position: fixed; bottom: 20px; right: 20px; margin: 0px; background-color: #ffd15c; color: #333333; border: 1px solid #444444; padding: 12px 60px 12px 60px; font-size: 20px; font-weight: bold; }
+    input.launch:hover       { background-color: #ffc124; color: #000000; }
+    tr.sec td                { padding-top: 20px; font-weight: bold; font-size: 20px; }
+    tr.sec td:first-child    { padding-right: 20px; }
+    td.name                  { padding-right: 20px; }
+    td.lvl-1                 { padding-left: 40px; }
+  </style>
+  
+  
+  <script type="text/javascript">
+    // -----------------------------------------------------------------------------------------------------
+    function $(id) { return document.getElementById(id); }
+    
+    
+    // -----------------------------------------------------------------------------------------------------
+    function ehDataLive() {
+      var styleDisplay = ($("data-live").value === "1" ? "" : "none");
+      
+      $("data-top-n-grp").parentNode.parentNode.style.display = styleDisplay;
+    }
+    
+    
+    // -----------------------------------------------------------------------------------------------------
+    function ehUiTBarVis() {
+      var styleDisplay = ($("ui-tbar-vis").value === "1" ? "" : "none");
+      
+      $("ui-tbar-mode-vis")       .parentNode.parentNode.style.display = styleDisplay;
+      $("ui-tbar-rep-lvl-vis")    .parentNode.parentNode.style.display = styleDisplay;
+      $("ui-tbar-topic-size-vis") .parentNode.parentNode.style.display = styleDisplay;
+      $("ui-tbar-grp-vis")        .parentNode.parentNode.style.display = styleDisplay;
+      $("ui-tbar-res-vis")        .parentNode.parentNode.style.display = styleDisplay;
+    }
+    
+    
+    // -----------------------------------------------------------------------------------------------------
+    function launch() {
+      var params = [];
+      
+      // (1) Session:
+      var session = "usr=" + $("usr").value + "&grp=" + $("grp").value + "&sid=" + $("sid").value + "&cid=" + $("cid").value;
+      
+      // (2) Data:
+      if ($("data-live")                   .value === "0" ) params.push("data-live=0");
+      if ($("data-top-n-grp")              .value !== "10") params.push("data-top-n-grp=" + $("data-top-n-grp").value);
+      if ($("data-req-other-learners")     .value === "1" ) params.push("data-req-other-learners=1");
+      
+      // (3) Default values:
+      if ($("def-val-rep-lvl-id")          .value !== "" )  params.push("def-val-rep-lvl-id=" + $("def-val-rep-lvl-id").value);
+      if ($("def-val-grp-idx")             .value !== "" )  params.push("def-val-grp-idx=" + $("def-val-grp-idx").value);
+      if ($("def-val-res-id")              .value !== "" )  params.push("def-val-res-id=" + $("def-val-res-id").value);
+      
+      // (4) UI: Toolbar:
+      if ($("ui-tbar-vis")                 .value === "0" ) params.push("ui-tbar-vis=0");
+      if ($("ui-tbar-mode-vis")            .value === "0" ) params.push("ui-tbar-mode-vis=0");
+      if ($("ui-tbar-rep-lvl-vis")         .value === "0" ) params.push("ui-tbar-rep-lvl-vis=0");
+      if ($("ui-tbar-topic-size-vis")      .value === "0" ) params.push("ui-tbar-topic-size-vis=0");
+      if ($("ui-tbar-grp-vis")             .value === "0" ) params.push("ui-tbar-grp-vis=0");
+      if ($("ui-tbar-res-vis")             .value === "0" ) params.push("ui-tbar-res-vis=0");
+      
+      // (5) UI: Grids:
+      // (5.1) Headers:
+      if ($("ui-grid-all-head-me-vis")     .value === "0" ) params.push("ui-grid-all-head-me-vis=0");
+      if ($("ui-grid-all-head-me-grp-vis") .value === "0" ) params.push("ui-grid-all-head-me-grp-vis=0");
+      if ($("ui-grid-all-head-grp-vis")    .value === "0" ) params.push("ui-grid-all-head-grp-vis=0");
+      if ($("ui-grid-all-head-others-vis") .value === "0" ) params.push("ui-grid-all-head-others-vis=0");
+      
+      if ($("ui-grid-one-head-me-vis")     .value === "0" ) params.push("ui-grid-one-head-me-vis=0");
+      if ($("ui-grid-one-head-others-vis") .value === "0" ) params.push("ui-grid-one-head-others-vis=0");
+      
+      // (5.2) Grids:
+      if ($("ui-grid-me-vis")              .value === "0" ) params.push("ui-grid-me-vis=0");
+      if ($("ui-grid-me-grp-vis")          .value === "0" ) params.push("ui-grid-me-grp-vis=0");
+      if ($("ui-grid-grp-vis")             .value === "0" ) params.push("ui-grid-grp-vis=0");
+      if ($("ui-grid-others-vis")          .value === "0" ) params.push("ui-grid-others-vis=0");
+      
+      // (5.3) Other:
+      if ($("ui-grid-timeline-vis")        .value === "0" ) params.push("ui-grid-timeline-vis=0");
+      if ($("ui-grid-act-lst-mode")        .value === "0" ) params.push("ui-grid-act-lst-mode=0");
+      
+      window.open("index.html?" + session + (params.length === 0 ? "" : "&" + params.join("&")));
+    }
+  </script>
+</head>
+
+
+<body>
+
+
+<div class="title">Mastery Grids: Launcher</div>
+
+<table>
+
+
+<!-- 1. Session -->
+<tr class="sec"><td>1.</td><td colspan="2">Session</td></tr>
+
+<tr>
+  <td></td>
+  <td class="name">Username</td>
+  <td><input id="usr" type="text" value="adl01" /></td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name">Group</td>
+  <td><input id="grp" type="text" value="ADL" /></td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name">Session ID</td>
+  <td><input id="sid" type="text" value="test" /></td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name">Course ID</td>
+  <td><input id="cid" type="text" value="1" /></td>
+</tr>
+
+
+<!-- 2. Data -->
+<tr class="sec"><td>2.</td><td colspan="2">Data</td></tr>
+
+<tr>
+  <td></td>
+  <td class="name">Load live data</td>
+  <td>
+    <select id="data-live" onchange="ehDataLive()">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td>The <i>n</i> in "Top n" group</td>
+  <td>
+    <select id="data-top-n-grp">
+      <option value="1">1</option>
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10" selected="selected">10</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td>Request other learners</td>
+  <td>
+    <select id="data-req-other-learners">
+      <option value="0">No</option>
+      <option value="1">Yes</option>
+    </select>
+  </td>
+</tr>
+
+
+<!-- 3. Default values -->
+<tr class="sec"><td>3.</td><td colspan="2">Default values</td></tr>
+
+<tr>
+  <td></td>
+  <td class="name">Report level (ID)</td>
+  <td>
+    <select id="def-val-rep-lvl-id">
+      <option value="">--</option>
+      <option value="p">Progress</option>
+      <option value="k">Knowledge</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name">Group (index)</td>
+  <td>
+    <select id="def-val-grp-idx">
+      <option value="">--</option>
+      <option value="0">1st</option>
+      <option value="1">2nd</option>
+      <option value="2">3rd</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name">Resource (ID)</td>
+  <td>
+    <select id="def-val-res-id">
+      <option value="">--</option>
+      <option value="AVG">OVERALL</option>
+      <option value="qz">Questions</option>
+      <option value="ex">Examples</option>
+    </select>
+  </td>
+</tr>
+
+
+<!-- 4. UI: Toolbar -->
+<tr class="sec"><td>4.</td><td colspan="2">UI: Toolbar</td></tr>
+
+<tr>
+  <td></td>
+  <td class="name">Toolbar visible</td>
+  <td>
+    <select id="ui-tbar-vis" onchange="ehUiTBarVis()">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Mode toggle visible</td>
+  <td>
+    <select id="ui-tbar-mode-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Report level toggle visible</td>
+  <td>
+    <select id="ui-tbar-rep-lvl-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Topic size toggle visible</td>
+  <td>
+    <select id="ui-tbar-topic-size-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Group toggle visible</td>
+  <td>
+    <select id="ui-tbar-grp-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Resource toggle visible</td>
+  <td>
+    <select id="ui-tbar-res-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+
+<!-- 5. UI: Grids -->
+<tr class="sec"><td>5.</td><td colspan="2">UI: Grids</td></tr>
+
+<!-- 5.1. Headers -->
+<tr><td></td><td class="name">Header visible</td><td></td></tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">All resources - Me</td>
+  <td>
+    <select id="ui-grid-all-head-me-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">All resources - Me vs group</td>
+  <td>
+    <select id="ui-grid-all-head-me-grp-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">All resources - Group</td>
+  <td>
+    <select id="ui-grid-all-head-grp-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">All resources - Others</td>
+  <td>
+    <select id="ui-grid-all-head-others-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">One resource - Me</td>
+  <td>
+    <select id="ui-grid-one-head-me-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">One resource - Others</td>
+  <td>
+    <select id="ui-grid-one-head-others-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<!-- 5.2. Grids -->
+<tr><td></td><td class="name">Grid visible</td><td></td></tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Me</td>
+  <td>
+    <select id="ui-grid-me-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Me vs group</td>
+  <td>
+    <select id="ui-grid-me-grp-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Group</td>
+  <td>
+    <select id="ui-grid-grp-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Other learners</td>
+  <td>
+    <select id="ui-grid-others-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<!-- 5.3. Other -->
+<tr><td></td><td class="name">Other</td><td></td></tr>
+
+<!--
+<tr>
+  <td></td>
+  <td class="name lvl-1">Bar chart visible</td>
+  <td>
+    <select id="ui-grid-bar-chart-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+-->
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Timeline visible</td>
+  <td>
+    <select id="ui-grid-timeline-vis">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Activities overlay</td>
+  <td>
+    <select id="ui-grid-act-lst-mode">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<!--
+<tr>
+  <td></td>
+  <td class="name lvl-1">Group cell height</td>
+  <td>
+    <select id="ui-grid-timeline-vis">
+      <option value="2">2</option>
+      <option value="3">3</option>
+      <option value="4">4</option>
+      <option value="5">5</option>
+      <option value="6">6</option>
+      <option value="7">7</option>
+      <option value="8">8</option>
+      <option value="9">9</option>
+      <option value="10">10</option>
+      <option value="11">11</option>
+      <option value="12" selected="selected">12</option>
+      <option value="13">13</option>
+      <option value="14">14</option>
+      <option value="15">15</option>
+      <option value="16">16</option>
+      <option value="17">17</option>
+      <option value="18">18</option>
+      <option value="19">19</option>
+      <option value="20">20</option>
+    </select>px
+  </td>
+</tr>
+-->
+
+<!-- 5.4. Events -->
+<!--
+<tr><td></td><td class="name">Events</td><td></td></tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Mouse-over enabled</td>
+  <td>
+    <select id="ui-grid-evt-mouseover-on">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Click enabled</td>
+  <td>
+    <select id="ui-grid-evt-click-on">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
+</table>
+-->
+
+<input type="button" value="Launch!" class="launch" onclick="launch();" />
+
+
+</body>
+
+
+</html>
