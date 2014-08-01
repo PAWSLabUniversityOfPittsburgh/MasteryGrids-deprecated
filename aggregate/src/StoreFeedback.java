@@ -44,6 +44,7 @@ public class StoreFeedback extends HttpServlet {
 			throws ServletException, IOException {
 
 		response.setContentType("application/json");
+		response.setHeader("Access-Control-Allow-Origin", "*");
 		PrintWriter out = response.getWriter();
 		String output = "";
 

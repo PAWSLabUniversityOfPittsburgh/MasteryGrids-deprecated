@@ -790,6 +790,8 @@ public class Aggregate {
             
             // proactive recommendations
             if(cm.agg_proactiverec_enabled){
+            	//System.out.println("Including sequencing");
+            	
             	ArrayList<String[]> proactive_rec = all_rec.get(1);
             	contentSequencingScores = new HashMap<String, Double>();
             	topicSequencingScores = new HashMap<String, double[]>();
