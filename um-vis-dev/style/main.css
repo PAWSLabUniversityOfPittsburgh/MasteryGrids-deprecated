@@ -104,9 +104,14 @@ svg g.grid rect.box:hover  {  }
 
 svg g.timeline line            { stroke: #222222; stroke-width: 1; }
 
-svg g.timeline circle          { fill: #fa0004; stroke: #610002; }
-svg g.timeline circle.covered  { fill: #00cc1b; stroke: #003807; }
-svg g.timeline circle.current  { fill: #00cc1b; stroke: #000000; }
+/* svg g.timeline circle          { fill: #fa0004; stroke: #610002; } */
+/* svg g.timeline circle.covered  { fill: #00cc1b; stroke: #003807; } */
+/* svg g.timeline circle.current  { fill: #00cc1b; stroke: #000000; } */
+
+svg g.timeline circle          { fill: #eeeeee; stroke: #222222; }
+svg g.timeline circle.covered  { fill: #00aa1b; stroke: #222222; }
+svg g.timeline circle.current  { fill: #dd401b; stroke: #000000; }
+
 
 svg g.timeline path            { stroke-width: 1px; }
 svg g.timeline path.current    { fill: #00cc1b; stroke: #000000; }
@@ -118,9 +123,11 @@ svg g.timeline text.current    { fill: #000000; font-weight: bold; }
 
 
 /* Activities list */
-#act-lst        { display: none; position: absolute; padding: 8px 0px 0px 8px; border: 1px solid #888888/*#faa200*/; background-color: #ffffff; -webkit-box-shadow: 0px 0px 4px #444444; -moz-box-shadow: 0px 0px 4px #444444; box-shadow: 0px 0px 4px #444444; /*-moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;*/ z-index: 100; }
+#act-lst        { display: none; position: absolute; padding: 16px 0px 0px 8px; border: 1px solid #888888/*#faa200*/; background-color: #ffffff; -webkit-box-shadow: 0px 0px 4px #444444; -moz-box-shadow: 0px 0px 4px #444444; box-shadow: 0px 0px 4px #444444; /*-moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;*/ z-index: 100; }
 #act-lst-arrow  { display: none; position: absolute; z-index: 101; }
 
+/* Help Overlay Window */
+#help-dlg        { display: none; position: absolute; padding: 16px 0px 0px 8px; border: 1px solid #888888/*#faa200*/; background-color: #ffffff; -webkit-box-shadow: 0px 0px 4px #444444; -moz-box-shadow: 0px 0px 4px #444444; box-shadow: 0px 0px 4px #444444; /*-moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;*/ z-index: 100; }
 
 
 /* Sunburst */
@@ -191,3 +198,6 @@ a:focus  { outline: none; }
 
 #nav-tabs .inner  { padding: 0px; }
 #nav-tabs .inner .ui-widget-header  { background-color: #dddddd; }
+
+.small-btn {padding: 1px 3px 1px 3px !important; font-size:9px;}
+#btn-act-lst-close {float: right; top: -13px; margin-right: 3px;}

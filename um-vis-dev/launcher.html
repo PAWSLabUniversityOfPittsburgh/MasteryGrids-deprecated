@@ -46,6 +46,10 @@
       $("ui-tbar-res-vis")        .parentNode.parentNode.style.display = styleDisplay;
     }
     
+    function onLoadFunction(){
+        $("sid").value = makeId();
+    }
+    
     
     // -----------------------------------------------------------------------------------------------------
     function launch() {
@@ -92,13 +96,27 @@
       if ($("ui-grid-timeline-vis")        .value === "0" ) params.push("ui-grid-timeline-vis=0");
       if ($("ui-grid-act-lst-mode")        .value === "0" ) params.push("ui-grid-act-lst-mode=0");
       
+      if ($("ui-show-help")       		   .value === "0" ) params.push("ui-show-help=0");
+      
+      
+      
       window.open("index.html?" + session + (params.length === 0 ? "" : "&" + params.join("&")));
+    }
+    
+    function makeId() {
+        var text = "";
+        var possible = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+
+        for( var i=0; i < 5; i++ )
+            text += possible.charAt(Math.floor(Math.random() * possible.length));
+
+        return text;
     }
   </script>
 </head>
 
 
-<body>
+<body onload="onLoadFunction()">
 
 
 <div class="title">Mastery Grids: Launcher</div>
@@ -503,9 +521,24 @@
     </select>
   </td>
 </tr>
+-->
+<!-- 6. Help -->
+<tr class="sec"><td>6.</td><td colspan="2">Help</td></tr>
+
+<tr>
+  <td></td>
+  <td class="name lvl-1">Help visible</td>
+  <td>
+    <select id="ui-show-help">
+      <option value="1">Yes</option>
+      <option value="0">No</option>
+    </select>
+  </td>
+</tr>
+
 
 </table>
--->
+
 
 <input type="button" value="Launch!" class="launch" onclick="launch();" />
 
