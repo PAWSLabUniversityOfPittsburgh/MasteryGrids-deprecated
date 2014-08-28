@@ -60,14 +60,16 @@
     },
     topicSizeAttr : ["difficulty", "importance"],
     ui: {
-      doShowToolbar            : true,
-      doShowToolbarReportLevel : true,
-      doShowToolbarMode        : true,
-      doShowToolbarTopicSize   : true,
-      doShowToolbarGroup       : true,
-      doShowToolbarResource    : true,
-      
-      doShowOtherLearners : true
+//      doShowToolbar            : true,
+//      doShowToolbarReportLevel : true,
+//      doShowToolbarMode        : true,
+//      doShowToolbarTopicSize   : true,
+//      doShowToolbarGroup       : true,
+//      doShowToolbarResource    : true,
+//      
+//      doShowOtherLearners : true
+        params : {user :{}, group: {}}
+        
     }
   }
 }

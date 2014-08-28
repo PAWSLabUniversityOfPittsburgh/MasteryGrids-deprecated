@@ -39,7 +39,7 @@
 
 
 var CONST = {
-  appName    : "ProgVis",
+  appName    : "MasteryGrids",
   cookies    : { days: 355 },
   defTopN    : 10,  // the default 'n' in the "Top n" group
   log        : { sep01: ",", sep02: ":" },  // separators used for logging
@@ -83,6 +83,7 @@ var CONST = {
   },
 
   uriServer  : "http://adapt2.sis.pitt.edu/aggregate/"
+  //uriServer  : "http://localhost:8080/aggregate_git/"
 };
 
 var qs = {};  // query string parsed into key-value pairs
@@ -989,8 +990,8 @@ function init() {
     "ui-tbar-res-vis"        + CONST.log.sep02 + state.args.uiTBarResVis,
     false
   );
-  
   loadData();
+  
 }
 
 
@@ -1209,7 +1210,7 @@ function loadData_cb(res) {
   
   // (3) Init UI:
   initUI();
-  stateLoad();
+  //stateLoad();
   
   // (3.1) Toolbar:
   // (3.1.1) Report levels:
@@ -1485,6 +1486,8 @@ function stateArgsSet01() {
   state.args.dataLive             = (qs["data-live"] === "0" ? false : true);
   state.args.dataTopNGrp          = (isNaN(parseInt(qs["data-top-n-grp"])) || parseInt(qs["data-top-n-grp"]) <= 0 ? CONST.defTopN : parseInt(qs["data-top-n-grp"]));
   state.args.dataReqOtherLearners = (qs["data-req-other-learners"] === "1" ? true : false);
+  
+  
 }
 
 
@@ -1528,10 +1531,63 @@ function stateArgsSet02() {
   state.args.uiGridTimelineTitle    = "";
   state.args.uiGridActLstMode       = (qs["ui-grid-act-lst-mode"]  === "0" ? false : true);
   
-  state.args.uiShowHelp             = (qs["ui-show-help"]  === "0" ? false : true);
+  state.args.uiShowHelp             = (qs["ui-show-help"]  === "1" ? true : false);
   
   // @@@@
-  // TODO overwrite parameters with the ones in the data: data.vis.ui
+  // TODO overwrite parameters with the ones in the data: 
+  // data.vis.ui.params.group and data.vis.ui.params.user (in this order)
+  
+  // Overwrite Parameters defined for the group 
+  if(data.vis.ui.params.group){   
+      state.args.defValRepLvl           = (data.vis.ui.params.group.defValRepLvlId != undefined ? data.vis.ui.params.group.defValRepLvlId : state.args.defValRepLvl);
+      state.args.defValGrpIdx           = (data.vis.ui.params.group.defValGrpIdx != undefined ? data.vis.ui.params.group.defValGrpIdx : state.args.defValGrpIdx);
+      state.args.defValResId            = (data.vis.ui.params.group.defValResId != undefined ? data.vis.ui.params.group.defValResId : state.args.defValResId);
+      state.args.uiTBarVis              = (data.vis.ui.params.group.uiTBarVis != undefined ? data.vis.ui.params.group.uiTBarVis : state.args.uiTBarVis);
+      state.args.uiTBarModeVis          = (data.vis.ui.params.group.uiTBarModeVis != undefined ? data.vis.ui.params.group.uiTBarModeVis : state.args.uiTBarModeVis);
+      state.args.uiTBarRepLvlVis        = (data.vis.ui.params.group.uiTBarRepLvlVis != undefined ? data.vis.ui.params.group.uiTBarRepLvlVis : state.args.uiTBarRepLvlVis);
+      state.args.uiTBarTopicSizeVis     = (data.vis.ui.params.group.uiTBarTopicSizeVis != undefined ? data.vis.ui.params.group.uiTBarTopicSizeVis : state.args.uiTBarTopicSizeVis);
+      state.args.uiTBarGrpVis           = (data.vis.ui.params.group.uiTBarGrpVis != undefined ? data.vis.ui.params.group.uiTBarGrpVis : state.args.uiTBarGrpVis);
+      state.args.uiTBarResVis           = (data.vis.ui.params.group.uiTBarResVis != undefined ? data.vis.ui.params.group.uiTBarResVis : state.args.uiTBarResVis);
+      state.args.uiGridAllHeadMeVis     = (data.vis.ui.params.group.uiGridAllHeadMeVis != undefined ? data.vis.ui.params.group.uiGridAllHeadMeVis : state.args.uiGridAllHeadMeVis);
+      state.args.uiGridAllHeadMeGrpVis  = (data.vis.ui.params.group.uiGridAllHeadMeGrpVis != undefined ? data.vis.ui.params.group.uiGridAllHeadMeGrpVis : state.args.uiGridAllHeadMeGrpVis);
+      state.args.uiGridAllHeadGrpVis    = (data.vis.ui.params.group.uiGridAllHeadGrpVis != undefined ? data.vis.ui.params.group.uiGridAllHeadGrpVis : state.args.uiGridAllHeadGrpVis);
+      state.args.uiGridAllHeadOthersVis = (data.vis.ui.params.group.uiGridAllHeadOthersVis != undefined ? data.vis.ui.params.group.uiGridAllHeadOthersVis : state.args.uiGridAllHeadOthersVis);
+      state.args.uiGridOneHeadMeVis     = (data.vis.ui.params.group.uiGridOneHeadMeVis != undefined ? data.vis.ui.params.group.uiGridOneHeadMeVis : state.args.uiGridOneHeadMeVis);
+      state.args.uiGridOneHeadOthersVis = (data.vis.ui.params.group.uiGridOneHeadOthersVis != undefined ? data.vis.ui.params.group.uiGridOneHeadOthersVis : state.args.uiGridOneHeadOthersVis);
+      state.args.uiGridMeVis            = (data.vis.ui.params.group.uiGridMeVis != undefined ? data.vis.ui.params.group.uiGridMeVis : state.args.uiGridMeVis);
+      state.args.uiGridMeGrpVis         = (data.vis.ui.params.group.uiGridMeGrpVis != undefined ? data.vis.ui.params.group.uiGridMeGrpVis : state.args.uiGridMeGrpVis);
+      state.args.uiGridGrpVis           = (data.vis.ui.params.group.uiGridGrpVis != undefined ? data.vis.ui.params.group.uiGridGrpVis : state.args.uiGridGrpVis);
+      state.args.uiGridOthersVis        = (data.vis.ui.params.group.uiGridOthersVis != undefined ? data.vis.ui.params.group.uiGridOthersVis : state.args.uiGridOthersVis);
+      state.args.uiGridTimelineVis      = (data.vis.ui.params.group.uiGridTimelineVis != undefined ? data.vis.ui.params.group.uiGridTimelineVis : state.args.uiGridTimelineVis);
+      state.args.uiGridTimelineTitle    = "";
+      state.args.uiGridActLstMode       = (data.vis.ui.params.group.uiGridActLstMode != undefined ? data.vis.ui.params.group.uiGridActLstMode : state.args.uiGridActLstMode);
+      state.args.uiShowHelp             = (data.vis.ui.params.group.uiShowHelp != undefined ? data.vis.ui.params.group.uiShowHelp : state.args.uiShowHelp);
+  }
+  if(data.vis.ui.params.user){
+      state.args.defValRepLvl           = (data.vis.ui.params.user.defValRepLvlId != undefined ? data.vis.ui.params.user.defValRepLvlId : state.args.defValRepLvl);
+      state.args.defValGrpIdx           = (data.vis.ui.params.user.defValGrpIdx != undefined ? data.vis.ui.params.user.defValGrpIdx : state.args.defValGrpIdx);
+      state.args.defValResId            = (data.vis.ui.params.user.defValResId != undefined ? data.vis.ui.params.user.defValResId : state.args.defValResId);
+      state.args.uiTBarVis              = (data.vis.ui.params.user.uiTBarVis != undefined ? data.vis.ui.params.user.uiTBarVis : state.args.uiTBarVis);
+      state.args.uiTBarModeVis          = (data.vis.ui.params.user.uiTBarModeVis != undefined ? data.vis.ui.params.user.uiTBarModeVis : state.args.uiTBarModeVis);
+      state.args.uiTBarRepLvlVis        = (data.vis.ui.params.user.uiTBarRepLvlVis != undefined ? data.vis.ui.params.user.uiTBarRepLvlVis : state.args.uiTBarRepLvlVis);
+      state.args.uiTBarTopicSizeVis     = (data.vis.ui.params.user.uiTBarTopicSizeVis != undefined ? data.vis.ui.params.user.uiTBarTopicSizeVis : state.args.uiTBarTopicSizeVis);
+      state.args.uiTBarGrpVis           = (data.vis.ui.params.user.uiTBarGrpVis != undefined ? data.vis.ui.params.user.uiTBarGrpVis : state.args.uiTBarGrpVis);
+      state.args.uiTBarResVis           = (data.vis.ui.params.user.uiTBarResVis != undefined ? data.vis.ui.params.user.uiTBarResVis : state.args.uiTBarResVis);
+      state.args.uiGridAllHeadMeVis     = (data.vis.ui.params.user.uiGridAllHeadMeVis != undefined ? data.vis.ui.params.user.uiGridAllHeadMeVis : state.args.uiGridAllHeadMeVis);
+      state.args.uiGridAllHeadMeGrpVis  = (data.vis.ui.params.user.uiGridAllHeadMeGrpVis != undefined ? data.vis.ui.params.user.uiGridAllHeadMeGrpVis : state.args.uiGridAllHeadMeGrpVis);
+      state.args.uiGridAllHeadGrpVis    = (data.vis.ui.params.user.uiGridAllHeadGrpVis != undefined ? data.vis.ui.params.user.uiGridAllHeadGrpVis : state.args.uiGridAllHeadGrpVis);
+      state.args.uiGridAllHeadOthersVis = (data.vis.ui.params.user.uiGridAllHeadOthersVis != undefined ? data.vis.ui.params.user.uiGridAllHeadOthersVis : state.args.uiGridAllHeadOthersVis);
+      state.args.uiGridOneHeadMeVis     = (data.vis.ui.params.user.uiGridOneHeadMeVis != undefined ? data.vis.ui.params.user.uiGridOneHeadMeVis : state.args.uiGridOneHeadMeVis);
+      state.args.uiGridOneHeadOthersVis = (data.vis.ui.params.user.uiGridOneHeadOthersVis != undefined ? data.vis.ui.params.user.uiGridOneHeadOthersVis : state.args.uiGridOneHeadOthersVis);
+      state.args.uiGridMeVis            = (data.vis.ui.params.user.uiGridMeVis != undefined ? data.vis.ui.params.user.uiGridMeVis : state.args.uiGridMeVis);
+      state.args.uiGridMeGrpVis         = (data.vis.ui.params.user.uiGridMeGrpVis != undefined ? data.vis.ui.params.user.uiGridMeGrpVis : state.args.uiGridMeGrpVis);
+      state.args.uiGridGrpVis           = (data.vis.ui.params.user.uiGridGrpVis != undefined ? data.vis.ui.params.user.uiGridGrpVis : state.args.uiGridGrpVis);
+      state.args.uiGridOthersVis        = (data.vis.ui.params.user.uiGridOthersVis != undefined ? data.vis.ui.params.user.uiGridOthersVis : state.args.uiGridOthersVis);
+      state.args.uiGridTimelineVis      = (data.vis.ui.params.user.uiGridTimelineVis != undefined ? data.vis.ui.params.user.uiGridTimelineVis : state.args.uiGridTimelineVis);
+      state.args.uiGridTimelineTitle    = "";
+      state.args.uiGridActLstMode       = (data.vis.ui.params.user.uiGridActLstMode != undefined ? data.vis.ui.params.user.uiGridActLstMode : state.args.uiGridActLstMode);
+      state.args.uiShowHelp             = (data.vis.ui.params.user.uiShowHelp != undefined ? data.vis.ui.params.user.uiShowHelp : state.args.uiShowHelp);    
+  }
   
 }
 
