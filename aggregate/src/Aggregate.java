@@ -50,6 +50,9 @@ public class Aggregate {
     public ArrayList<String[]> class_list;
     public HashMap<String, String> non_students;
     
+    public String[] groupParameters; // visualization, services
+    public String[] userParameters; // visualization, services
+    
     // proactive recommendation scores per content and per topic
     public HashMap<String, Double> contentSequencingScores;
     public HashMap<String, double[]> topicSequencingScores; // array of double corresponding to the dimension of resources
@@ -57,10 +60,21 @@ public class Aggregate {
     public HashMap<String, double[]> userTopicLevels;
     public HashMap<String, double[]> userContentLevels;
 
-    public Map<String, double[]> aggs1_topic_levels;
-    public Map<String, double[]> aggs2_topic_levels;
-    public Map<String, double[]> aggs1_content_levels;
-    public Map<String, double[]> aggs2_content_levels;
+    public ArrayList<String[]> subgroups;
+    //public ArrayList<String[]> subgroups;
+
+    public ArrayList<Map<String, double[]>> subgroups_topic_levels; 
+    public ArrayList<Map<String, double[]>> subgroups_content_levels; 
+    public ArrayList<ArrayList<String>> subgroups_student_ids;
+    public ArrayList<String> subgroups_names;
+    
+//    public Map<String, double[]> aggs1_topic_levels;
+//    public Map<String, double[]> aggs2_topic_levels;
+//    public Map<String, double[]> aggs1_content_levels;
+//    public Map<String, double[]> aggs2_content_levels;
+    
+    public boolean includeOthers = true; // include other learners in the json
+    public int topN = -1; // how many top students. Parameter load from database if defined there
     public ArrayList<String> top_students_ids;
 
     public Map<String, Map<String, double[]>> peers_topic_levels;
@@ -136,12 +150,25 @@ public class Aggregate {
         
         // the userdata array contains user name, email and parameters for configuration
         String[] userdata = um_interface.getUserInfo(usr, cm.agg_uminterface_key);
-        usr_name = userdata[0];
-        usr_email = userdata[1];
-        if(userdata.length > 2) overwriteConfigForUser(userdata[2]);
+        if(userdata != null){
+        	usr_name = userdata[0];
+        	usr_email = userdata[1];
+        }else{
+        	usr_name = "unknown";
+        	usr_email = "unknown";
+        }
+        
+        processParameters(agg_db.getParameters(usr,grp));
+        
+        
         
 
         class_list = um_interface.getClassList(grp, cm.agg_uminterface_key);
+        if(class_list == null){
+        	class_list = new ArrayList<String[]>();
+        	String[] theUser = {usr,"unknown","unknown"}; 
+        	class_list.add(theUser);
+        }
         non_students = agg_db.getNonStudents(grp); // special non students (instructor, researcher)
         
         resourceList = agg_db.getResourceList(cid);
@@ -151,9 +178,13 @@ public class Aggregate {
         nContentLevels = 2; // the dimension of the content levels array. For each resource there is a level of knowledge and a level of progress
         
         topicList = agg_db.getTopicList(cid);
+        
         ArrayList<String> hidden_topics = agg_db.getHiddenTopics(grp);
         hideTopics(hidden_topics); // set the visibility attribute (topic[3]) to topics being invisible for this group
-
+        
+        // add current, covered to the 5th attribute of each topic 
+        processTopicStates(agg_db.getTimeLine(grp));
+        
         contentList = agg_db.getContent2(cid);
         // System.out.println("content got");
 
@@ -171,7 +202,7 @@ public class Aggregate {
             storePrecomputedModel(usr);
         }
         
-        
+        subgroups = agg_db.getSubGroups(grp);
         closeDBConnections();
     }
     
@@ -202,17 +233,17 @@ public class Aggregate {
         nTopicLevels = resourceList.size() * 2; // the dimension of the topic levels array. For each resource there is a level of knowledge and a level of progress
         nContentLevels = 2; // the dimension of the content levels array. For each resource there is a level of knowledge and a level of progress
 
-        String[] userdata = um_interface.getUserInfo(usr, cm.agg_uminterface_key);
-        if(userdata.length > 2) overwriteConfigForUser(userdata[2]);
+        //String[] userdata = um_interface.getUserInfo(usr, cm.agg_uminterface_key);
+        //if(userdata.length > 2) overwriteConfigForUser(userdata[2]);
         
         class_list = um_interface.getClassList(grp,cm.agg_uminterface_key);
 
         topicList = agg_db.getTopicList(cid);
 
         contentList = agg_db.getContent2(cid);
-        mapContentToTopic();
 
         topicContent = agg_db.getTopicContent2(cid, resourceMap);
+        mapContentToTopic();
 
         closeDBConnections();
     }
@@ -262,6 +293,12 @@ public class Aggregate {
         // contentSummary, each double[]: knowledge, progress, attempts/loads, success rate, completion, other 1, other 2
         long time1 = Calendar.getInstance().getTimeInMillis();
         userContentLevels = um_interface.getContentSummary(usr, grp, sid, cid, domain, contentList, null);
+//        for (Map.Entry<String, double[]> content : userContentLevels.entrySet()) {
+//            String content_name = content.getKey();
+//            double[] levels = content.getValue(); // @@@@
+//            System.out.println("   " + content_name +"  "+levels[0]+"  "+levels[1]);
+//        }
+        
         if(verbose) System.out.println("  Get all form UM   " + (Calendar.getInstance().getTimeInMillis()-time1));
         
         // COMPUTE AGGREGATE LEVELS FOR TOPICS
@@ -376,12 +413,17 @@ public class Aggregate {
         closeDBConnections();
     }
 
+    
     public void computeGroupLevels(boolean includeNullStudents, int top){
-        orderClassByProgress();
-        computeAverageClassTopicLevels();
-        computeAverageTopStudentsTopicLevels(top);
-        computeAverageClassContentLevels();
-        computeAverageTopStudentsContentLevels(top);
+        if(this.topN != -1) top = topN;
+    	orderClassByProgress();
+    	computeSubGroupsLevels(true, true, top);
+    	
+    	// comment following lines
+	//        computeAverageClassTopicLevels();
+	//        computeAverageTopStudentsTopicLevels(top);
+	//        computeAverageClassContentLevels();
+	//        computeAverageTopStudentsContentLevels(top);
     }
     
     //
@@ -491,52 +533,110 @@ public class Aggregate {
         
         return res;
     }
+    
+    // TODO nTop indicates
+    public void computeSubGroupsLevels(boolean includeClassAverage, boolean includeTop, int nTop) {
+    	//System.out.println("computing subgroups");
+    	subgroups_topic_levels = new ArrayList<Map<String, double[]>>();
+    	subgroups_content_levels = new ArrayList<Map<String, double[]>>();
+    	subgroups_student_ids = new ArrayList<ArrayList<String>>();
+    	subgroups_names = new ArrayList<String>();
+    	// first subgroup is class average
+    	if(includeClassAverage){
+    		ArrayList<String> allPeers = new ArrayList<String>();
+    		for(int i=0;i<class_list.size();i++){
+    			if (non_students.get(class_list.get(i)[0]) == null){
+    				allPeers.add(class_list.get(i)[0]);
+    			}
+    		}
+    		
+    		subgroups_student_ids.add(allPeers);
+    		subgroups_names.add("Class Average");
+    		subgroups_topic_levels.add(computeSubGroupTopicLevels(allPeers));
+    		subgroups_content_levels.add(computeSubGroupContentLevels(allPeers));
+    	}
+    	
+    	// second subgroup is top students
+    	if(includeTop){
+    		if(nTop<1) nTop = 1;
+    		if(nTop>class_list.size()) nTop = class_list.size();
+    		ArrayList<String> topPeers = new ArrayList<String>();
+    		int i = 0;
+    		for(int j=0;j<class_list.size() && i<nTop;j++){
+    			String learner_id = class_list.get(j)[0];
+    			if (non_students.get(learner_id) == null){
+    				topPeers.add(learner_id);
+    				i++;
+    			}
+    			
+    		}
+    		
+    		subgroups_student_ids.add(topPeers);
+    		subgroups_names.add("Top "+nTop);
+    		subgroups_topic_levels.add(computeSubGroupTopicLevels(topPeers));
+    		subgroups_content_levels.add(computeSubGroupContentLevels(topPeers));
+    	}
+    	
+    	// other subgroups
+    	if(subgroups != null && subgroups.size()>0){
+    		for(String[] subgroup : subgroups){
+    			String subgroupName = subgroup[0];
+    			String[] peers = subgroup[1].split(",");
+    			ArrayList<String> sub_peers = new  ArrayList<String>();
+    			for(String peer : peers){
+    				sub_peers.add(peer);
+    			}
+    			if(sub_peers.size()>0){
+        			subgroups_student_ids.add(sub_peers);
+            		subgroups_names.add(subgroupName);
+            		subgroups_topic_levels.add(computeSubGroupTopicLevels(sub_peers));
+            		subgroups_content_levels.add(computeSubGroupContentLevels(sub_peers));
+    			}    			
+    		}
+    	}
+    }
 
-    public void computeAverageClassTopicLevels() {
-        aggs1_topic_levels = new HashMap<String, double[]>();
-        int n = class_list.size();
-        int m = non_students.size();
-        int div = n - m;
-        if (div <= 0)
-            div = 1;
-        for (String[] topic : topicList) {
+    public HashMap<String, double[]> computeSubGroupTopicLevels(ArrayList<String> learners){
+    	HashMap<String, double[]> topicLevels = new HashMap<String, double[]>();
+    	
+    	for (String[] topic : topicList) {
             double[] avglevels = new double[nTopicLevels];
-            for (String[] learner : class_list) {
-                if (non_students.get(learner[0]) == null) {
+            int div = 0;
+            for (String learner : learners) {
+                if (non_students.get(learner) == null && !learner.equals(usr)) {
                     double[] levels = null;
-                    Map<String, double[]> learner_levels = peers_topic_levels
-                            .get(learner[0]);
-                    if (learner_levels != null)
-                        levels = learner_levels.get(topic[0]);
+                    Map<String, double[]> learner_topic_levels = peers_topic_levels.get(learner);
+                    // if the learner is not in the peer list (might never logged in in the system)
+                    if (learner_topic_levels != null){
+                    	levels = learner_topic_levels.get(topic[0]);
+                    } 
                     if (levels == null || levels.length == 0) {
                         for(int j=0;j<nTopicLevels;j++) avglevels[j] += 0.0;
                     } else {
                         for(int j=0;j<nTopicLevels;j++) avglevels[j] += levels[j];
                     }
-
+                    div++;
                 }
             }
+            if(div==0) div = 1;
             for(int j=0;j<nTopicLevels;j++) avglevels[j] = avglevels[j]/div;
             
-            aggs1_topic_levels.put(topic[0], avglevels);
+            topicLevels.put(topic[0], avglevels);
         }
+    	return topicLevels;
     }
-
-    public void computeAverageClassContentLevels() {
-        aggs1_content_levels = new HashMap<String, double[]>();
-        int n = class_list.size();
-        int m = non_students.size();
-        int div = n - m;
-        if (div <= 0)
-            div = 1;
+    
+    public HashMap<String, double[]> computeSubGroupContentLevels(ArrayList<String> learners){
+    	HashMap<String, double[]> contentLevels = new HashMap<String, double[]>();
+    	//aggs1_content_levels = new HashMap<String, double[]>();
         for (Map.Entry<String, String[]> content : contentList.entrySet()) {
             String content_name = content.getKey();
             double[] avglevels = new double[nContentLevels];
-            for (String[] learner : class_list) {
-                if (non_students.get(learner[0]) == null) {
+            int div = 0;
+            for (String learner : learners) {
+                if (non_students.get(learner) == null && !learner.equals(usr)) {
                     double[] levels = null;
-                    Map<String, double[]> learner_levels = peers_content_levels
-                            .get(learner[0]);
+                    Map<String, double[]> learner_levels = peers_content_levels.get(learner);
                     if (learner_levels != null)
                         levels = learner_levels.get(content_name);
                     if (levels == null || levels.length == 0) {
@@ -545,91 +645,155 @@ public class Aggregate {
                         for(int j=0;j<nContentLevels;j++) avglevels[j] += levels[j];
                     }
                 }
+                div++;
             }
+            if(div==0) div = 1;
             for(int j=0;j<nContentLevels;j++) avglevels[j] = avglevels[j]/div;
-            aggs1_content_levels.put(content_name, avglevels);
+            contentLevels.put(content_name, avglevels);
         }
+        return contentLevels;
     }
 
-    public void computeAverageTopStudentsTopicLevels(int n) {
-        aggs2_topic_levels = new HashMap<String, double[]>();
-        this.top_students_ids = new ArrayList<String>();
-        int m = non_students.size();
-        if ((class_list.size() - m) < n)
-            n = (class_list.size() - m);
-        if (n < 0)
-            n = 0;
-        int i = 0;
-        while (top_students_ids.size() < n && i < class_list.size()) {
-            String[] learner = class_list.get(i);
-            if (non_students.get(learner[0]) == null) {
-                top_students_ids.add(learner[0]);
-            }
-            i++;
-        }
+    
+    // TODO deprecated 
+//    public void computeAverageClassTopicLevels() {
+//        aggs1_topic_levels = new HashMap<String, double[]>();
+//        int n = class_list.size();
+//        int m = non_students.size();
+//        int div = n - m;
+//        if (div <= 0)
+//            div = 1;
+//        for (String[] topic : topicList) {
+//            double[] avglevels = new double[nTopicLevels];
+//            for (String[] learner : class_list) {
+//                if (non_students.get(learner[0]) == null) {
+//                    double[] levels = null;
+//                    Map<String, double[]> learner_levels = peers_topic_levels
+//                            .get(learner[0]);
+//                    if (learner_levels != null)
+//                        levels = learner_levels.get(topic[0]);
+//                    if (levels == null || levels.length == 0) {
+//                        for(int j=0;j<nTopicLevels;j++) avglevels[j] += 0.0;
+//                    } else {
+//                        for(int j=0;j<nTopicLevels;j++) avglevels[j] += levels[j];
+//                    }
+//
+//                }
+//            }
+//            for(int j=0;j<nTopicLevels;j++) avglevels[j] = avglevels[j]/div;
+//            
+//            aggs1_topic_levels.put(topic[0], avglevels);
+//        }
+//    }
+//
+//    public void computeAverageClassContentLevels() {
+//        aggs1_content_levels = new HashMap<String, double[]>();
+//        int n = class_list.size();
+//        int m = non_students.size();
+//        int div = n - m;
+//        if (div <= 0)
+//            div = 1;
+//        for (Map.Entry<String, String[]> content : contentList.entrySet()) {
+//            String content_name = content.getKey();
+//            double[] avglevels = new double[nContentLevels];
+//            for (String[] learner : class_list) {
+//                if (non_students.get(learner[0]) == null) {
+//                    double[] levels = null;
+//                    Map<String, double[]> learner_levels = peers_content_levels
+//                            .get(learner[0]);
+//                    if (learner_levels != null)
+//                        levels = learner_levels.get(content_name);
+//                    if (levels == null || levels.length == 0) {
+//                        for(int j=0;j<nContentLevels;j++) avglevels[j] += 0.0;
+//                    } else {
+//                        for(int j=0;j<nContentLevels;j++) avglevels[j] += levels[j];
+//                    }
+//                }
+//            }
+//            for(int j=0;j<nContentLevels;j++) avglevels[j] = avglevels[j]/div;
+//            aggs1_content_levels.put(content_name, avglevels);
+//        }
+//    }
 
-        int div = n;
-        if (div == 0)
-            div = 1;
-        for (String[] topic : topicList) {
-            double[] avglevels = new double[nTopicLevels];
-            i = 0;
-            while (i < top_students_ids.size()) {
-                Map<String, double[]> learner_levels = peers_topic_levels
-                        .get(top_students_ids.get(i));
-                double[] levels = null;
-                if (learner_levels != null)
-                    levels = learner_levels.get(topic[0]);
-                if (levels == null || levels.length == 0) {
-                    for(int j=0;j<nTopicLevels;j++) avglevels[j] += 0.0;
-                } else {
-                    for(int j=0;j<nTopicLevels;j++) avglevels[j] += levels[j];
-                }
-                i++;
-            }
-            for(int j=0;j<nTopicLevels;j++) avglevels[j] = avglevels[j]/div;
-            aggs2_topic_levels.put(topic[0], avglevels);
-        }
-    }
+//    public void computeAverageTopStudentsTopicLevels(int n) {
+//        aggs2_topic_levels = new HashMap<String, double[]>();
+//        this.top_students_ids = new ArrayList<String>();
+//        int m = non_students.size();
+//        if ((class_list.size() - m) < n)
+//            n = (class_list.size() - m);
+//        if (n < 0)
+//            n = 0;
+//        int i = 0;
+//        while (top_students_ids.size() < n && i < class_list.size()) {
+//            String[] learner = class_list.get(i);
+//            if (non_students.get(learner[0]) == null) {
+//                top_students_ids.add(learner[0]);
+//            }
+//            i++;
+//        }
+//
+//        int div = n;
+//        if (div == 0)
+//            div = 1;
+//        for (String[] topic : topicList) {
+//            double[] avglevels = new double[nTopicLevels];
+//            i = 0;
+//            while (i < top_students_ids.size()) {
+//                Map<String, double[]> learner_levels = peers_topic_levels
+//                        .get(top_students_ids.get(i));
+//                double[] levels = null;
+//                if (learner_levels != null)
+//                    levels = learner_levels.get(topic[0]);
+//                if (levels == null || levels.length == 0) {
+//                    for(int j=0;j<nTopicLevels;j++) avglevels[j] += 0.0;
+//                } else {
+//                    for(int j=0;j<nTopicLevels;j++) avglevels[j] += levels[j];
+//                }
+//                i++;
+//            }
+//            for(int j=0;j<nTopicLevels;j++) avglevels[j] = avglevels[j]/div;
+//            aggs2_topic_levels.put(topic[0], avglevels);
+//        }
+//    }
 
-    public void computeAverageTopStudentsContentLevels(int n) {
-        aggs2_content_levels = new HashMap<String, double[]>();
-        int m = non_students.size();
-        if ((class_list.size() - m) < n)
-            n = (class_list.size() - m);
-        if (n < 0)
-            n = 0;
-
-        int div = n;
-        if (div == 0)
-            div = 1;
-        // System.out.println(n+" top");
-        int i = 0;
-        for (Map.Entry<String, String[]> content : contentList.entrySet()) {
-            String content_name = content.getKey();
-            double[] avglevels = new double[nContentLevels];
-            // System.out.println(content_name+": ");
-            i = 0;
-            while (i < top_students_ids.size()) {
-                String learner = top_students_ids.get(i);
-                // System.out.print("   "+learner+" ");
-                Map<String, double[]> learner_levels = peers_content_levels
-                        .get(learner);
-                double[] levels = null;
-                if (learner_levels != null)
-                    levels = learner_levels.get(content_name);
-                if (levels == null || levels.length == 0) {
-                    for(int j=0;j<nContentLevels;j++) avglevels[j] += 0.0;
-                } else {
-                    for(int j=0;j<nContentLevels;j++) avglevels[j] += levels[j];
-                }
-                i++;
-            }
-
-            for(int j=0;j<nContentLevels;j++) avglevels[j] = avglevels[j]/div;
-            aggs2_content_levels.put(content_name, avglevels);
-        }
-    }
+//    public void computeAverageTopStudentsContentLevels(int n) {
+//        aggs2_content_levels = new HashMap<String, double[]>();
+//        int m = non_students.size();
+//        if ((class_list.size() - m) < n)
+//            n = (class_list.size() - m);
+//        if (n < 0)
+//            n = 0;
+//
+//        int div = n;
+//        if (div == 0)
+//            div = 1;
+//        // System.out.println(n+" top");
+//        int i = 0;
+//        for (Map.Entry<String, String[]> content : contentList.entrySet()) {
+//            String content_name = content.getKey();
+//            double[] avglevels = new double[nContentLevels];
+//            // System.out.println(content_name+": ");
+//            i = 0;
+//            while (i < top_students_ids.size()) {
+//                String learner = top_students_ids.get(i);
+//                // System.out.print("   "+learner+" ");
+//                Map<String, double[]> learner_levels = peers_content_levels
+//                        .get(learner);
+//                double[] levels = null;
+//                if (learner_levels != null)
+//                    levels = learner_levels.get(content_name);
+//                if (levels == null || levels.length == 0) {
+//                    for(int j=0;j<nContentLevels;j++) avglevels[j] += 0.0;
+//                } else {
+//                    for(int j=0;j<nContentLevels;j++) avglevels[j] += levels[j];
+//                }
+//                i++;
+//            }
+//
+//            for(int j=0;j<nContentLevels;j++) avglevels[j] = avglevels[j]/div;
+//            aggs2_content_levels.put(content_name, avglevels);
+//        }
+//    }
 
     public String precomputedTopicModel() {
         String user_levels = "";
@@ -781,7 +945,8 @@ public class Aggregate {
                 	r.add(topic);  // topic id
                 	r.add(contentList.get(rec[2])[0]); // resource id
                 	r.add(rec[2]);  // content id
-                	r.add(rec[3].substring(0,5)); // score
+                	if(rec[3].length()>5) r.add(rec[3].substring(0,5)); // score
+                	else r.add(rec[3]);
                 	r.add("Do you think the above example will help you to solve the original problem?"); // feedback question
                 	r.add("-1"); // stored value of the feedback
                 	recommendation_list.add(r);
@@ -804,16 +969,22 @@ public class Aggregate {
 
                 for (String[] topic_data : topicList) {
                     ArrayList<String>[] topic_content = topicContent.get(topic_data[0]);
-                    double[] seqScores = new double[topic_content.length];
-                    for(int i=0;i<topic_content.length;i++){
-                        ArrayList<String> contents = topic_content[i];
-                        for(String content_name: contents){
-                            Double s = contentSequencingScores.get(content_name);
-                            if(s != null)
-                            if (s>seqScores[i]){
-                                seqScores[i] = s; 
+                    double[] seqScores;
+                    if(topic_content == null){
+                    	seqScores = new double[resourceList.size()];
+                    }else{
+                        seqScores = new double[topic_content.length];
+                        for(int i=0;i<topic_content.length;i++){
+                            ArrayList<String> contents = topic_content[i];
+                            for(String content_name: contents){
+                                Double s = contentSequencingScores.get(content_name);
+                                if(s != null)
+                                if (s>seqScores[i]){
+                                    seqScores[i] = s; 
+                                }
                             }
                         }
+                    	
                     }
                     topicSequencingScores.put(topic_data[0], seqScores);
                 }
@@ -835,12 +1006,15 @@ public class Aggregate {
     	mapContentTopic = new HashMap<String, String>();
     	for (String[] topic : topicList) {
             ArrayList<String>[] oneTypeContents = topicContent.get(topic[0]);
-            for(int i=0;i<oneTypeContents.length;i++){
-            	for (String content_name : oneTypeContents[i]) {
-            		if(!mapContentTopic.containsKey(content_name)){
-            			mapContentTopic.put(content_name,topic[0]);
-            		}
-            	}
+            if(oneTypeContents != null){
+                for(int i=0;i<oneTypeContents.length;i++){
+                	for (String content_name : oneTypeContents[i]) {
+                		if(!mapContentTopic.containsKey(content_name)){
+                			mapContentTopic.put(content_name,topic[0]);
+                		}
+                	}
+                }
+            	
             }
             
         }
@@ -882,34 +1056,82 @@ public class Aggregate {
     	return provider;
     }
     
+    // each String[] in the arraylist contains a set of 2 parameters string (comma separated):
+    // vis paameters and services parameters
+    
+    public void processParameters (ArrayList<String[]> parameters){
+    	if(parameters == null) return;
+    	for(String[] p : parameters){
+    		if(p[0].equalsIgnoreCase("user")){
+    			userParameters = new String[2];
+    			if(p.length>1 && p[1] != null) userParameters[0] = p[1]; else userParameters[0] = "";
+    			if(p.length>2 && p[2] != null) userParameters[1] = p[2]; else userParameters[1] = "";
+    		}
+    		if(p[0].equalsIgnoreCase("group")){
+    			groupParameters = new String[2];
+    			if(p.length>1 && p[1] != null) groupParameters[0] = p[1]; else groupParameters[0] = "";
+    			if(p.length>2 && p[2] != null) groupParameters[1] = p[2]; else groupParameters[1] = "";
+    		}
+    	}
+    	if(verbose){
+    		System.out.print("    userParameters : ");
+    		System.out.println((userParameters!=null ? (userParameters[0]+" ||| "+userParameters[1]) : "NULL"));
+    		System.out.print("    groupParameters : ");
+    		System.out.println((groupParameters!=null ? (groupParameters[0]+" ||| "+groupParameters[1]) : "NULL"));
+    		
+    	}
+    	
+    	// Overwrite the services configuration. Group and the user gives user's defined parameters high priority
+    	if(groupParameters != null) overwriteServiceConfig(groupParameters[1]);
+    	if(userParameters != null) overwriteServiceConfig(userParameters[1]);
+    }
+    
     // parameters can be
     // proactive_rec=yes, reactive_rec=yes, 
     // proactive_rec_threshold, reactive_rec_threshold,
     // proactive_rec_max, reactive_rec_max,
     // proactive_rec_method, reactive_rec_method,
-    //
-    //
-    public void overwriteConfigForUser(String parameters){
+    // TODO
+    public void overwriteServiceConfig(String parameters){
     	if (parameters == null || parameters.length()==0) return;
     	String[] params = parameters.split(",");
     	for(String param : params){
-    		String[] pair = param.split("=");
-    		if(pair[0].equalsIgnoreCase("proactive_rec")) cm.agg_proactiverec_enabled = pair[1].equalsIgnoreCase("yes");
-    		if(pair[0].equalsIgnoreCase("reactive_rec")) cm.agg_reactiverec_enabled = pair[1].equalsIgnoreCase("yes");
-    		if(pair[0].equalsIgnoreCase("proactive_rec_threshold")) 
+    		String[] pair = param.split(":");
+    		pair[0] = pair[0].trim();
+    		pair[1] = pair[1].trim();
+    		if(pair[0].equalsIgnoreCase("dataTopNGroup")) 
+    			try {this.topN = Integer.parseInt(pair[1]);} catch(Exception e) {}
+    		if(pair[0].equalsIgnoreCase("dataIncOtherLearners")) this.includeOthers = pair[1].equalsIgnoreCase("true");
+    		
+    		if(pair[0].equalsIgnoreCase("proactiveRecOn")) cm.agg_proactiverec_enabled = pair[1].equalsIgnoreCase("true");
+    		if(pair[0].equalsIgnoreCase("reactiveRecOn")) cm.agg_reactiverec_enabled = pair[1].equalsIgnoreCase("true");
+    		if(pair[0].equalsIgnoreCase("proactiveRecThreshold")) 
     			try {cm.agg_proactiverec_threshold = Double.parseDouble(pair[1]);} catch(Exception e) {}
-    		if(pair[0].equalsIgnoreCase("reactive_rec_threshold")) 
+    		if(pair[0].equalsIgnoreCase("reactiveRecThreshold")) 
     			try {cm.agg_reactiverec_threshold = Double.parseDouble(pair[1]);} catch(Exception e) {}
-    		if(pair[0].equalsIgnoreCase("proactive_rec_max")) 
+    		if(pair[0].equalsIgnoreCase("proactiveRecMax")) 
    			    try {cm.agg_proactiverec_max  = Integer.parseInt(pair[1]);} catch(Exception e) {}
-    		if(pair[0].equalsIgnoreCase("reactive_rec_max")) 
+    		if(pair[0].equalsIgnoreCase("reactiveRecMax")) 
    			    try {cm.agg_reactiverec_max  = Integer.parseInt(pair[1]);} catch(Exception e) {}
-    		if(pair[0].equalsIgnoreCase("proactive_rec_method")) cm.agg_proactiverec_method = pair[1].trim();
-    		if(pair[0].equalsIgnoreCase("reactive_rec_method")) cm.agg_reactiverec_method = pair[1].trim();
+    		if(pair[0].equalsIgnoreCase("proactiveRecMethod")) cm.agg_proactiverec_method = pair[1].trim();
+    		if(pair[0].equalsIgnoreCase("reactiveRecMethod")) cm.agg_reactiverec_method = pair[1].trim();
     	}
     }
     
-    
+    public void processTopicStates(String[] topicStates){
+    	if(topicStates != null){
+    		if(topicStates.length>0){
+    			if(topicStates[0] == null) topicStates[0] = ""; 
+    		}
+    		if(topicStates.length>1){
+    			if(topicStates[1] == null) topicStates[1] = ""; 
+    		}
+    		for (String[] topic : topicList) {
+    			if(topicStates[1].contains(topic[0])) topic[4] = "covered";
+    			if(topicStates[0].contains(topic[0])) topic[4] = "current";
+    		}
+    	}
+    }
     
     public boolean trackAction(String action, String comment) {
         boolean connection_was_open = false;
@@ -937,7 +1159,7 @@ public class Aggregate {
                 + grp_name
                 + "\"}},\n"
                 + "  reportLevels:[{id:\"p\",name:\"Progress\"},{id:\"k\",name:\"Knowledge\"}],\n"
-                + "  resources:[\n";
+                + "  resources:[ \n";
         for(String[] r : resourceList){
             if(r[4] == null || r[4].length()<3) r[4] = "010";
             res += "    {id:\"" + r[0] + "\",name:\"" + r[1] + "\", " +
@@ -953,12 +1175,28 @@ public class Aggregate {
     }
 
     public String genJSONVisProperties() {
-        String res = "vis:{\n  topicSizeAttr:[\"difficulty\",\"importance\"],\n  color:{binCount:7,value2color:function (x) { var y = Math.log(x)*0.25 + 1;  return (y < 0 ? 0 : y); }}\n}";
+        String res = "vis:{\n  topicSizeAttr:[\"difficulty\",\"importance\"],\n  color:{binCount:7,value2color:function (x) { var y = Math.log(x)*0.25 + 1;  return (y < 0 ? 0 : y); }},";
+        res +=		"\n  ui:{";
+        res +=		"\n    params:{";
+        res +=		"\n      group:{";
+        if(groupParameters != null){
+        	if(groupParameters[0] != null) res += groupParameters[0];
+        }
+        res +=		"},";
+        res +=		"\n      user:{";
+        if(userParameters != null){
+        	if(userParameters[0] != null) res += userParameters[0];
+        }
+        
+        res +=		"}";
+        res +=		"\n    }";
+        res +=		"\n  }";
+        res +=		"\n}";
         return res;
     }
 
     public String genJSONTopics() {
-        String topics = "  topics:[\n";
+        String topics = "  topics:[  \n";
 
         for (String[] topic : topicList) {
             String visible = "true";
@@ -969,29 +1207,39 @@ public class Aggregate {
                     + df.format(getTopicDifficulty(topic[1])) + ",importance:"
                     + df.format(getTopicImportance(topic[1])) + ",order:"
                     + topic[2] + ",concepts:[";
-            // TODO : concepts
+          
             topics += "],isVisible:" + visible + ",\n";
+            topics += "    timeline:{ covered:" + (topic[4].equalsIgnoreCase("covered") ? "true" : "false") + 
+            					  ", current:" + (topic[4].equalsIgnoreCase("current") ? "true" : "false") + "},\n";
             topics += "    activities:{ \n";
             //
             
             ArrayList<String>[] content = topicContent.get(topic[0]);
-            
-            for(int i=0;i<content.length;i++){
-                String resourceName = resourceList.get(i)[0];
-                ArrayList<String> contentItems = content[i];
-                topics += "      \""+resourceName+"\":[\n";
-                if (contentItems != null && contentItems.size() > 0) {
-                    for (String item : contentItems) {
-                        String[] content_data = this.contentList.get(item);
-                        topics += "        {id:\"" + item + "\",name:\""
-                                + content_data[1] + "\",url:\"" + content_data[2]
-                                + "\"},\n";
+            if(content == null){
+            	for(int i=0;i<resourceList.size();i++){
+            		String resourceName = resourceList.get(i)[0];
+            		topics += "      \""+resourceName+"\":[],\n";
+            	}
+            }else{
+                for(int i=0;i<content.length;i++){
+                    String resourceName = resourceList.get(i)[0];
+                    ArrayList<String> contentItems = content[i];
+                    topics += "      \""+resourceName+"\":[\n";
+                    if (contentItems != null && contentItems.size() > 0) {
+                        for (String item : contentItems) {
+                            String[] content_data = this.contentList.get(item);
+                            topics += "        {id:\"" + item + "\",name:\""
+                                    + content_data[1] + "\",url:\"" + content_data[2]
+                                    + "\"},\n";
+                        }
+                        topics = topics.substring(0, topics.length() - 2); // get rid of
+                                                                           // the last
+                                                                           // comma
                     }
-                    topics = topics.substring(0, topics.length() - 2); // get rid of
-                                                                       // the last
-                                                                       // comma
+                    topics += "\n      ],\n";
+                    
                 }
-                topics += "\n      ],\n";
+            	
             }
             topics = topics.substring(0, topics.length() - 2);
 
@@ -1015,8 +1263,8 @@ public class Aggregate {
         if (peers_content_levels != null)
             student_c_l = peers_content_levels.get(student);
 
-        String topic_levels = "      topics:{\n";
-        String content_levels = "      activities:{\n";
+        String topic_levels = "      topics:{  \n";
+        String content_levels = "      activities:{  \n";
 
         String seq = "";
         boolean sequencing = (student.equalsIgnoreCase(usr));
@@ -1027,7 +1275,7 @@ public class Aggregate {
             String resourceName = "";
             seq = "";
             if (sequencing){
-                seq = ",sequencing:{";
+                seq = ",sequencing:{  ";
                 
                 
                 for(int i=0;i<resourceList.size();i++){
@@ -1044,7 +1292,7 @@ public class Aggregate {
             if (student_t_l != null)
                 levels = student_t_l.get(topic_name);
             if (levels != null) {
-                topic_levels += "       \"" + topic_name + "\": {values:{";
+                topic_levels += "       \"" + topic_name + "\": {values:{  ";
                 for(int i=0;i<resourceList.size();i++){
                     resourceName = resourceList.get(i)[0];
                     topic_levels += "\""+resourceName+"\":{\"k\":" + df.format(levels[2*i]) + ",\"p\":" + df.format(levels[2*i+1]) + "},";
@@ -1053,7 +1301,7 @@ public class Aggregate {
                 topic_levels += "}" + seq + "},\n";
                 
             } else {
-                topic_levels += "       \"" + topic_name + "\": {values:{";
+                topic_levels += "       \"" + topic_name + "\": {values:{  ";
                 for(int i=0;i<resourceList.size();i++){
                     resourceName = resourceList.get(i)[0];
                     topic_levels += "\""+resourceName+"\":{\"k\":" + df.format(0) + ",\"p\":" + df.format(0) + "},";
@@ -1062,45 +1310,47 @@ public class Aggregate {
                 topic_levels += "}" + seq + "},\n";
             }
 
-            content_levels += "       \"" + topic_name + "\": {\n";
+            content_levels += "       \"" + topic_name + "\": {  \n";
             ArrayList<String>[] content = topicContent.get(topic_name);
-            
-            for(int i=0;i<content.length;i++){
-                resourceName = resourceList.get(i)[0];
-                ArrayList<String> contentItems = content[i];
-                content_levels += "        \""+resourceName+"\":{";
-                if (contentItems != null && contentItems.size() > 0) {
-                    content_levels += "\n";
-                    for (String item : contentItems) {
-                        // System.out.println("Q:"+q);
-                        seq = "";
-                        if (sequencing)
-                            seq = ",sequencing:"
-                                    + df.format(getContentSequenceScore(item));
-                        if (student_c_l == null)
-                            levels = null;
-                        else
-                            levels = student_c_l.get(item);
-                        if (levels != null) {
-                            content_levels += "          \"" + item
-                                    + "\": {values:{\"k\":" + df.format(levels[0])
-                                    + ",\"p\":" + df.format(levels[1]) + "}" + seq
-                                    + "},\n";
-                        } else {
-                            content_levels += "          \"" + item
-                                    + "\": {values:{\"k\":0,\"p\":0}" + seq
-                                    + "},\n";
-                        }
+            if (content != null){
+                for(int i=0;i<content.length;i++){
+                    resourceName = resourceList.get(i)[0];
+                    ArrayList<String> contentItems = content[i];
+                    content_levels += "        \""+resourceName+"\":{";
+                    if (contentItems != null && contentItems.size() > 0) {
+                        content_levels += "\n";
+                        for (String item : contentItems) {
+                            // System.out.println("Q:"+q);
+                            seq = "";
+                            if (sequencing)
+                                seq = ",sequencing:"
+                                        + df.format(getContentSequenceScore(item));
+                            if (student_c_l == null)
+                                levels = null;
+                            else
+                                levels = student_c_l.get(item);
+                            if (levels != null) {
+                                content_levels += "          \"" + item
+                                        + "\": {values:{\"k\":" + df.format(levels[0])
+                                        + ",\"p\":" + df.format(levels[1]) + "}" + seq
+                                        + "},\n";
+                            } else {
+                                content_levels += "          \"" + item
+                                        + "\": {values:{\"k\":0,\"p\":0}" + seq
+                                        + "},\n";
+                            }
 
-                        // content_levels += "    {},\n";
+                            // content_levels += "    {},\n";
+                        }
+                        content_levels = content_levels.substring(0,content_levels.length() - 2); // get rid of the last comma
+                        content_levels += "\n        },\n";
+                    } else {
+                        content_levels += "},\n";
                     }
-                    content_levels = content_levels.substring(0,content_levels.length() - 2); // get rid of the last comma
-                    content_levels += "\n        },\n";
-                } else {
-                    content_levels += "},\n";
+                    
+                    
                 }
-                
-                
+            	
             }
             content_levels = content_levels.substring(0,content_levels.length() - 2);
             content_levels += "\n       },\n";
@@ -1117,18 +1367,12 @@ public class Aggregate {
         return res;
     }
 
-    // agg: 1: all class students, 2: only top N students
-    public String genJSONGroupState(int agg) {
-        String res = "  state:{\n";
-        Map<String, double[]> aggs_t_l = aggs1_topic_levels;
-        Map<String, double[]> aggs_c_l = aggs1_content_levels;
-        if (agg == 2) {
-            aggs_t_l = aggs2_topic_levels;
-            aggs_c_l = aggs2_content_levels;
-        }
+    // 
+    public String genJSONGroupState(Map<String, double[]> aggs_t_l, Map<String, double[]> aggs_c_l, ArrayList<String> learner_ids) {
+        String res = "  state:{  \n";
 
-        String topic_levels = "    topics:{\n";
-        String content_levels = "    activities:{\n";
+        String topic_levels = "    topics:{  \n";
+        String content_levels = "    activities:{  \n";
         
         String resourceName = null;
 
@@ -1139,7 +1383,7 @@ public class Aggregate {
                 levels = aggs_t_l.get(topic_name);
             // level k,p per topic
             if (levels != null) {
-                topic_levels += "       \"" + topic_name + "\": {values:{";
+                topic_levels += "       \"" + topic_name + "\": {values:{  ";
                 for(int i=0;i<resourceList.size();i++){
                     resourceName = resourceList.get(i)[0];
                     topic_levels += "\""+resourceName+"\":{\"k\":" + df.format(levels[2*i]) + ",\"p\":" + df.format(levels[2*i+1]) + "},";
@@ -1148,7 +1392,7 @@ public class Aggregate {
                 topic_levels += "}},\n";
                 
             } else {
-                topic_levels += "       \"" + topic_name + "\": {values:{";
+                topic_levels += "       \"" + topic_name + "\": {values:{  ";
                 for(int i=0;i<resourceList.size();i++){
                     resourceName = resourceList.get(i)[0];
                     topic_levels += "\""+resourceName+"\":{\"k\":" + df.format(0) + ",\"p\":" + df.format(0) + "},";
@@ -1158,36 +1402,38 @@ public class Aggregate {
             }
             
 
-            content_levels += "      \"" + topic_name + "\": {\n";
+            content_levels += "      \"" + topic_name + "\": { \n";
             ArrayList<String>[] content = topicContent.get(topic_name);
-            
-            for(int i=0;i<content.length;i++){
-                resourceName = resourceList.get(i)[0];
-                ArrayList<String> contentItems = content[i];
-                content_levels += "        \""+resourceName+"\":{";
-                if (contentItems != null && contentItems.size() > 0) {
-                    content_levels += "\n";
-                    for (String item : contentItems) {
-                        if (aggs_c_l == null)
-                            levels = null;
-                        else
-                            levels = aggs_c_l.get(item);
-                        if (levels != null) {
-                            content_levels += "          " 
-                                    + "\"" + item + "\": {values:{\"k\":" + df.format(levels[0]) + ",\"p\":" + df.format(levels[1]) + "}},\n";
-                        } else {
-                            content_levels += "          "
-                                    + "\"" + item + "\": {values:{\"k\":0,\"p\":0}},\n";
-                        }
+            if (content != null){
+                for(int i=0;i<content.length;i++){
+                    resourceName = resourceList.get(i)[0];
+                    ArrayList<String> contentItems = content[i];
+                    content_levels += "        \""+resourceName+"\":{  ";
+                    
+                    if (contentItems != null && contentItems.size() > 0) {
+                        content_levels += "\n";
+                        for (String item : contentItems) {
+                            if (aggs_c_l == null)
+                                levels = null;
+                            else
+                                levels = aggs_c_l.get(item);
+                            if (levels != null) {
+                                content_levels += "          " 
+                                        + "\"" + item + "\": {values:{\"k\":" + df.format(levels[0]) + ",\"p\":" + df.format(levels[1]) + "}},\n";
+                            } else {
+                                content_levels += "          "
+                                        + "\"" + item + "\": {values:{\"k\":0,\"p\":0}},\n";
+                            }
 
+                        }
+                        content_levels = content_levels.substring(0,content_levels.length() - 2); // get rid of the last comma
+                        content_levels += "\n        },\n";
+                    } else {
+                        content_levels += "},\n";
                     }
-                    content_levels = content_levels.substring(0,content_levels.length() - 2); // get rid of the last comma
-                    content_levels += "\n        },\n";
-                } else {
-                    content_levels += "},\n";
-                }
-                
-                
+                    
+                    
+                }            	
             }
             content_levels = content_levels.substring(0,content_levels.length() - 2);
             content_levels += "\n      },\n";
@@ -1199,19 +1445,11 @@ public class Aggregate {
         content_levels += "\n    }\n";
 
         String learnersids = "learnerIds:[  ";
-        if (agg == 2) {
-            for (String studentid : top_students_ids) {
-                learnersids += "\"" + studentid + "\", ";
-            }
-            learnersids = learnersids.substring(0, learnersids.length() - 2);
-        } else {
-            for (String[] studentdata : class_list) {
-                if (non_students.get(studentdata[0]) == null) {
-                    learnersids += "\"" + studentdata[0] + "\", ";
-                }
-            }
-            learnersids = learnersids.substring(0, learnersids.length() - 2);
+        for (String studentid : learner_ids) {
+            learnersids += "\"" + studentid + "\", ";
         }
+        learnersids = learnersids.substring(0, learnersids.length() - 2);
+
         learnersids += "]";
         res += topic_levels + content_levels + "\n },\n  " + learnersids;
 
@@ -1272,10 +1510,13 @@ public class Aggregate {
 
     // generate JSON output for all the data!!!!
     public String genAllJSON(int n, int top) {
-        String header = genJSONHeader();
+        
+    	String header = genJSONHeader();
         String visprop = genJSONVisProperties();
         String topics = genJSONTopics();
 
+        if(!this.includeOthers) n = 0;
+        
         String learners = "learners:[ \n";
         int c = 0;
         for (String[] learner : class_list) {
@@ -1291,15 +1532,15 @@ public class Aggregate {
         learners = learners.substring(0, learners.length() - 2);
         learners += "\n]";
 
-        String aggs_levels = "groups:[\n";
+        String aggs_levels = "groups:[ \n";
+        for(int g=0;g<subgroups_names.size();g++){
+            String subgroup = "{\n  name:\""+subgroups_names.get(g)+"\",\n";
 
-        String aggs_1 = "{\n  name:\"Class Average\",\n";
-        String aggs_2 = "{\n  name:\"Top " + top + "\",\n";
-
-        aggs_1 += genJSONGroupState(1) + "\n},\n";
-        aggs_2 += genJSONGroupState(2) + "\n}\n";
-
-        aggs_levels += aggs_1 + aggs_2 + "]";
+            subgroup += genJSONGroupState(subgroups_topic_levels.get(g), subgroups_content_levels.get(g), subgroups_student_ids.get(g)) + "\n},\n";
+            aggs_levels += subgroup;
+        }
+        aggs_levels = aggs_levels.substring(0, aggs_levels.length() - 2);
+        aggs_levels += "]";
 
         return header + ",\n" + topics + ",\n" + learners + ",\n" + aggs_levels
                 + ",\n" + visprop + "\n}";

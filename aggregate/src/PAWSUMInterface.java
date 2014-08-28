@@ -23,7 +23,7 @@ import org.w3c.dom.Element;
 
 public class PAWSUMInterface implements UMInterface {
     private String server = "http://adapt2.sis.pitt.edu";
-    // private String server = "http://localhost:8080";
+    //private String server = "http://localhost:8080";
 
     private String userInfoServiceURL = server
             + "/aggregateUMServices/GetUserInfo";
@@ -33,7 +33,8 @@ public class PAWSUMInterface implements UMInterface {
             + "/aggregateUMServices/GetQuestionsActivity";
     private String examplesActivityServiceURL = server
             + "/aggregateUMServices/GetExamplesActivity";
-    private String conceptLevelsServiceURL = server + "/cbum/ReportManager";
+    //private String conceptLevelsServiceURL = server + "/cbum/ReportManager";
+    private String conceptLevelsServiceURL = "http://adapt2.sis.pitt.edu/cbum/ReportManager";
 
     private String contentKCURL = server
             + "/aggregateUMServices/GetContentConcepts";
@@ -118,7 +119,7 @@ public class PAWSUMInterface implements UMInterface {
         // 1. GET THE LEVELS OF KNOWLEDGE OF THE USER IN CONCEPTS
         // FROM USER MODEL USING THE USER MODEL INTERFACE
         kcSummary = this.getConceptLevels(usr, domain, grp); // Concept Knowledge levels
-        
+        //System.out.println(kcSummary.get("IntDataType")[0]);
         // 2. GET USERS LOGS FROM DIFFERENT CONTENT PROVIDERS UM
         HashMap<String, String[]> examples_activity = this.getUserExamplesActivity(usr, domain);
         HashMap<String, String[]> questions_activity = this.getUserQuestionsActivity(usr, domain);
@@ -148,11 +149,16 @@ public class PAWSUMInterface implements UMInterface {
                 for (int j = 0; j < c_concepts.size(); j++) {
                     String[] _concept = c_concepts.get(j);
                     // if (_concept.length<2)
-                    // System.out.println(_concept[0]+" : "+_concept.length);
+                    //System.out.println(_concept[0]+" : "+_concept.length);
 
                     String direction = _concept[2]; // outcome or prerequisite
                     // only compute levels in outcome concepts (how much already
                     // know that is new in the content?)
+                    // TODO
+//                    if (content_provider.equalsIgnoreCase("webex") && content_name.equals("variables1_v2")) {
+//                    	System.out.println(_concept[0]+" : "+direction+"   w: "+_concept[1]+"  k:"+(kcSummary.get(_concept[0]) != null ? kcSummary.get(_concept[0])[0] : "undefined!"));
+//                    	//System.out.println("K for example "+content_name+" : "+kpvalues[0]);
+//                    }
                     if (direction.equalsIgnoreCase("outcome") || !contrainOutcomeLevel) {
                         String concept = _concept[0];
                         double weight = Double.parseDouble(_concept[1]);
@@ -160,6 +166,9 @@ public class PAWSUMInterface implements UMInterface {
                             user_concept_k = -1.0;
                         else {
                             user_concept_k = kcSummary.get(concept)[0];
+//                            if (content_provider.equalsIgnoreCase("webex") && content_name.equals("variables1_v2")) {
+//                            	System.out.println(content_name+"  "+concept+" "+user_concept_k+"  w:"+weight);
+//                            }
                             sum_weights += weight;
                             user_content_k += user_concept_k * weight;
                         }
@@ -172,23 +181,25 @@ public class PAWSUMInterface implements UMInterface {
                 user_content_k = 0.0;
             else
                 user_content_k = user_content_k / sum_weights;
-
+//            if (content_provider.equalsIgnoreCase("webex") && content_name.equals("variables1_v2")) {
+//            	System.out.println("K for example "+content_name+" : "+user_content_k);
+//            }
             kpvalues[0] = user_content_k;
+//            if (content_provider.equalsIgnoreCase("webex")) {
+//            	
+//            	//System.out.println("K for example "+content_name+" : "+kpvalues[0]);
+//            }
 
             double user_content_p = 0.0;
             if (content_provider.equalsIgnoreCase("webex")) {
                 // System.out.println("K for example "+content_name+" : "+kpvalues[0]);
-                if (examples_activity == null
-                        || examples_activity.get(content_name) == null) {
+                if (examples_activity == null  ||  examples_activity.get(content_name) == null) {
                     user_content_p = 0.0;
                 } else {
-                    String[] example_activity = examples_activity
-                            .get(content_name);
+                    String[] example_activity = examples_activity.get(content_name);
 
-                    double distinct_actions = Double
-                            .parseDouble(example_activity[2]);
-                    double total_lines = Double
-                            .parseDouble(example_activity[3]);
+                    double distinct_actions = Double.parseDouble(example_activity[2]);
+                    double total_lines = Double.parseDouble(example_activity[3]);
                     if (total_lines == 0)
                         total_lines = 1.0;
                     user_content_p = distinct_actions / total_lines;
@@ -204,8 +215,7 @@ public class PAWSUMInterface implements UMInterface {
             }
             // Progress level related with Questions
             if (content_provider.equalsIgnoreCase("quizjet")) {
-                if (questions_activity == null
-                        || questions_activity.get(content_name) == null) {
+                if (questions_activity == null || questions_activity.get(content_name) == null) {
                     user_content_p = 0.0;
                 } else {
 
@@ -225,6 +235,9 @@ public class PAWSUMInterface implements UMInterface {
             kpvalues[1] = user_content_p;
 
             contentSummary.put(content_name, kpvalues);
+//            if(content_provider.equalsIgnoreCase("webex") && content_name.equals("variables1_v2")){
+//            	System.out.println("k,p : "+kpvalues[0]+"    "+kpvalues[1]);
+//            }
         }
         return contentSummary;
     }
@@ -246,8 +259,7 @@ public class PAWSUMInterface implements UMInterface {
             //System.out.println("\n\n"+json.toString()+"\n\n");
             if (json.has("error")) {
                 //System.out.println("HERE ");
-                System.out
-                        .println("Error:[" + json.getString("errorMsg") + "]");
+                System.out.println("Error:[" + json.getString("errorMsg") + "]");
             } else {
                 res = new HashMap<String, ArrayList<String[]>>();
                 JSONArray contents = json.getJSONArray("content");
@@ -257,8 +269,14 @@ public class PAWSUMInterface implements UMInterface {
                     String content_name = jsonobj.getString("content_name");
                     // if the content exist in the course
                     if (contentList.containsKey(content_name)){
-                        //System.out.println(content_name);
+//                        if(contentList.get(content_name)[5].equals("webex")){
+//                        	System.out.println(content_name+" "+contentList.get(content_name)[5]);                        	
+//                        }
+
                         String conceptListStr = jsonobj.getString("concepts");
+//                        if(contentList.get(content_name)[5].equals("webex")){
+//                        	System.out.println("  "+conceptListStr);
+//                        }
                         ArrayList<String[]> conceptList;
                         if (conceptListStr == null
                                 || conceptListStr.equalsIgnoreCase("[null]")
@@ -269,8 +287,12 @@ public class PAWSUMInterface implements UMInterface {
                             String[] concepts = conceptListStr.split(";");
                             for (int j = 0; j < concepts.length; j++) {
                                 String[] concept = concepts[j].split(",");
+                                //if(concept.length<3) System.out.println("  "+j+" "+content_name+"  "+concept[0]+"  "+concept.length);
                                 conceptList.add(concept); // concept_name, weight, direction
-                                //System.out.println("  " + concept[0] + " " + concept[1] + " " + concept[2]);
+//                                if(contentList.get(content_name)[5].equals("webex")){
+//                                	System.out.println("  "+concepts[j]+"  " + concept[0] + " " + concept[1] + " " + concept[2]);
+//                                	
+//                                }
                             }
                         }
                         res.put(content_name, conceptList);
@@ -310,10 +332,11 @@ public class PAWSUMInterface implements UMInterface {
             }
             if (url != null)
                 user_concept_knowledge_levels = processUserKnowledgeReport(url);
-            // System.out.println(url.toString());
+            //System.out.println(url.toString());
         } catch (Exception e) {
             user_concept_knowledge_levels = null;
-            e.printStackTrace();
+            System.out.println("UM: Error in reporting UM for user "+usr);
+            //e.printStackTrace();
         }
         return user_concept_knowledge_levels;
 
@@ -412,8 +435,7 @@ public class PAWSUMInterface implements UMInterface {
 
         HashMap<String, double[]> userKnowledgeMap = new HashMap<String, double[]>();
         try {
-            DocumentBuilderFactory dbFactory = DocumentBuilderFactory
-                    .newInstance();
+            DocumentBuilderFactory dbFactory = DocumentBuilderFactory.newInstance();
             DocumentBuilder dBuilder = dbFactory.newDocumentBuilder();
             Document doc = dBuilder.parse(url.openStream());
             doc.getDocumentElement().normalize();
@@ -426,21 +448,16 @@ public class PAWSUMInterface implements UMInterface {
                 if (nNode.getNodeType() == Node.ELEMENT_NODE) {
 
                     Element eElement = (Element) nNode;
-                    NodeList cogLevels = eElement
-                            .getElementsByTagName("cog_level");
+                    NodeList cogLevels = eElement.getElementsByTagName("cog_level");
                     for (int i = 0; i < cogLevels.getLength(); i++) {
                         Node cogLevelNode = cogLevels.item(i);
                         if (cogLevelNode.getNodeType() == Node.ELEMENT_NODE) {
                             Element cogLevel = (Element) cogLevelNode;
-                            if (getTagValue("name", cogLevel).trim().equals(
-                                    "application")) {
-                                // System.out.println(getTagValue("name",
-                                // eElement));
+                            if (getTagValue("name", cogLevel).trim().equals("application")) {
+                                // System.out.println(getTagValue("name",eElement));
                                 double[] levels = new double[1];
                                 levels[0] = Double.parseDouble(getTagValue("value",cogLevel).trim());
-                                userKnowledgeMap.put(
-                                        getTagValue("name", eElement),
-                                        levels);
+                                userKnowledgeMap.put(getTagValue("name", eElement),levels);
                             }
                         }
                     }
@@ -448,8 +465,8 @@ public class PAWSUMInterface implements UMInterface {
             }
 
         } catch (Exception e) {
-
-            e.printStackTrace();
+            //e.printStackTrace();
+        	System.out.println("UM: Error in reporting UM. URL = "+url);
             return null;
         }
         return userKnowledgeMap;

@@ -125,11 +125,12 @@ public class AggregateDB extends dbInterface {
 
             rs = stmt.executeQuery(query);
             while (rs.next()) {
-                String[] topic = new String[4];
+                String[] topic = new String[5];
                 topic[0] = rs.getString("topic_name");
                 topic[1] = rs.getString("display_name");
                 topic[2] = rs.getString("order");
-                topic[3] = rs.getString("visible");; // visibility
+                topic[3] = rs.getString("visible"); // visibility
+                topic[4] = ""; // current / covered
                 res.add(topic);
             }
             this.releaseStatement(stmt, rs);
@@ -257,6 +258,7 @@ public class AggregateDB extends dbInterface {
     public HashMap<String, ArrayList<String>[]> getTopicContent2(String course_id, HashMap<String, Integer> resourceMap) {
         try {
             int n = resourceMap.size();
+
             HashMap<String, ArrayList<String>[]> res = new HashMap<String, ArrayList<String>[]>();
             stmt = conn.createStatement();
             String query = "SELECT T.topic_name, group_concat(C.content_name , ',' , R.resource_name order by C.content_type, TC.display_order separator ';') as content "
@@ -561,7 +563,7 @@ public class AggregateDB extends dbInterface {
                 resource[2] = rs.getString("desc");
                 resource[3] = rs.getString("visible");
                 resource[4] = rs.getString("update_state_on");
-                resource[4] = rs.getString("order");
+                resource[5] = rs.getString("order");
                 res.add(resource);
                 //System.out.println(resource[0]+" | "+resource[1]+" | "+resource[2]+" | "+resource[3]+" | "+resource[4]);
                 i++;
@@ -577,5 +579,81 @@ public class AggregateDB extends dbInterface {
         }
 
     }   
+    
+    public ArrayList<String[]> getSubGroups(String group_id) {
+        try {
+            ArrayList<String[]> res = new ArrayList<String[]>();
+            stmt = conn.createStatement();
+            String query = "SELECT subgroup_name,subgroup_users from ent_subgroups " +
+            		   "where group_id=\'"+group_id+"\';";
+            rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                String[] subgroup = new String[2];
+                subgroup[0] = rs.getString("subgroup_name");
+                subgroup[1] = rs.getString("subgroup_users");
+                res.add(subgroup);
+            }
+            this.releaseStatement(stmt, rs);
+            return res;
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+            this.releaseStatement(stmt, rs);
+            return null;
+        }
+
+    }
+    
+    public ArrayList<String[]> getParameters(String user_id, String group_id) {
+        try {
+            ArrayList<String[]> res = new ArrayList<String[]>();
+            stmt = conn.createStatement();
+            String query = "SELECT level, params_vis, params_svcs from ent_parameters WHERE " +
+            		   " (group_id=\'"+group_id+"\' AND level='group') OR (user_id=\'"+user_id+"\' AND group_id=\'"+group_id+"\') ;";
+            // (user_id='dguerra' AND group_id='ADL') or ((isnull(user_id) or user_id='') AND group_id='ADL')
+            rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                String[] parameters = new String[4];
+                parameters[0] = rs.getString("level");
+                parameters[1] = rs.getString("params_vis");
+                parameters[2] = rs.getString("params_svcs");
+                res.add(parameters);
+            }
+            this.releaseStatement(stmt, rs);
+            return res;
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+            this.releaseStatement(stmt, rs);
+            return null;
+        }
+
+    }
+    
+    public String[] getTimeLine(String group_id) {
+        try {
+            String[] res = new String[2];
+            stmt = conn.createStatement();
+            String query = "SELECT currentTopics, coveredTopics FROM ent_timeline WHERE " +
+            		   " group_id=\'"+group_id+"\' ;";
+            // (user_id='dguerra' AND group_id='ADL') or ((isnull(user_id) or user_id='') AND group_id='ADL')
+            rs = stmt.executeQuery(query);
+            while (rs.next()) {
+            	res[0] = rs.getString("currentTopics");
+            	res[1] = rs.getString("coveredTopics");
+            }
+            this.releaseStatement(stmt, rs);
+            return res;
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+            this.releaseStatement(stmt, rs);
+            return null;
+        }
+
+    }
     
 }

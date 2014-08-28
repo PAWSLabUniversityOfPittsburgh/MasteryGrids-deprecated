@@ -57,7 +57,7 @@ public class PAWSRecInterface implements RecInterface {
             if(reactiveRecMethod != null && reactiveRecMethod.length()>0) method.addParameter("reactive_method", reactiveRecMethod);
             if(proactiveRecMethod != null && proactiveRecMethod.length()>0) method.addParameter("proactive_method", proactiveRecMethod);
             method.addParameter("contents", getContents(contentList));
-            System.out.println(method.getRequestBodyAsString());
+            System.out.println(method.getRequestBodyAsString());  
             int statusCode = client.executeMethod(method);
 
             if (statusCode != -1) {
@@ -128,6 +128,7 @@ public class PAWSRecInterface implements RecInterface {
         } catch (Exception e) {
         	result = null;
             e.printStackTrace();
+            return result;
         }finally{
         	
         }
@@ -158,7 +159,7 @@ public class PAWSRecInterface implements RecInterface {
 		String contents = "";
 		for (String c : contentList.keySet())
 			contents += c + ",";
-		contents = contents.substring(0, contents.length()-1); //this is for ignoring the last ,
+		if(contents.length()>0) contents = contents.substring(0, contents.length()-1); //this is for ignoring the last ,
 		return contents;
 	}
 

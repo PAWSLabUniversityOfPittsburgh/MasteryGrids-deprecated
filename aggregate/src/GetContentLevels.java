@@ -20,7 +20,7 @@ import javax.servlet.http.HttpServletResponse;
  * models indicates how many individual models will be inluded in the response. Since
  * a class can have many students, we can set a bound. -1 means everybody, 0 will at least include the current user <br />
  * 
- * -user: retrieve the current user updated model. Lasta activity id and result should be provided to let the server know
+ * -user: retrieve the current user updated model. Last activity id and result should be provided to let the server know
  * if recommendations are needed 
  * http://localhost:8080/aggregate/GetContentLevels?usr=adl01&grp=ADL&sid=TESTADL01&cid=1&mod=user&lastActivityId=jDouble1&res=0
  */
@@ -40,6 +40,7 @@ public class GetContentLevels extends HttpServlet {
             HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         response.setHeader("Access-Control-Allow-Origin", "*");
+        response.setHeader("Access-Control-Allow-Origin", "http://localhost:8888");
         time0 = Calendar.getInstance().getTimeInMillis();
         ConfigManager cm = new ConfigManager(this);
         verbose = cm.agg_verbose.equalsIgnoreCase("yes");
