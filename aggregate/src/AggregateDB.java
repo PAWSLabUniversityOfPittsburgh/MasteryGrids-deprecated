@@ -178,7 +178,7 @@ public class AggregateDB extends dbInterface {
                     + " FROM ent_content C, rel_topic_content TC, ent_topic T "
                     + " WHERE T.topic_name='"
                     + topic
-                    + "' and T.topic_id = TC.topic_id and TC.content_id=C.content_id and C.visible = 1 and TC.visible = 1 "
+                    + "' and T.topic_id = TC.topic_id and TC.content_id=C.content_id and C.visible = 1 and TC.visible = 1 and T.active = 1 "
                     + " ORDER by C.content_type desc, TC.display_order asc";
             rs = stmt.executeQuery(query);
             int i = 0;
@@ -220,7 +220,7 @@ public class AggregateDB extends dbInterface {
                     + " FROM ent_content C, rel_topic_content TC, ent_topic T, ent_resource R "
                     + " WHERE T.course_id='"
                     + course_id
-                    + "' and T.topic_id=TC.topic_id and TC.content_id=C.content_id and C.visible = 1 and TC.visible = 1 "
+                    + "' and T.topic_id=TC.topic_id and TC.content_id=C.content_id and C.visible = 1 and TC.visible = 1 and T.active = 1 "
                     + " and R.resource_id = TC.resource_id "
                     + " ORDER by T.`order`, R.`order` desc, TC.display_order asc";
             rs = stmt.executeQuery(query);

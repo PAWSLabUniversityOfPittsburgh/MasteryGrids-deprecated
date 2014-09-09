@@ -155,10 +155,6 @@ public class PAWSUMInterface implements UMInterface {
                     // only compute levels in outcome concepts (how much already
                     // know that is new in the content?)
                     // TODO
-//                    if (content_provider.equalsIgnoreCase("webex") && content_name.equals("variables1_v2")) {
-//                    	System.out.println(_concept[0]+" : "+direction+"   w: "+_concept[1]+"  k:"+(kcSummary.get(_concept[0]) != null ? kcSummary.get(_concept[0])[0] : "undefined!"));
-//                    	//System.out.println("K for example "+content_name+" : "+kpvalues[0]);
-//                    }
                     if (direction.equalsIgnoreCase("outcome") || !contrainOutcomeLevel) {
                         String concept = _concept[0];
                         double weight = Double.parseDouble(_concept[1]);
@@ -166,9 +162,6 @@ public class PAWSUMInterface implements UMInterface {
                             user_concept_k = -1.0;
                         else {
                             user_concept_k = kcSummary.get(concept)[0];
-//                            if (content_provider.equalsIgnoreCase("webex") && content_name.equals("variables1_v2")) {
-//                            	System.out.println(content_name+"  "+concept+" "+user_concept_k+"  w:"+weight);
-//                            }
                             sum_weights += weight;
                             user_content_k += user_concept_k * weight;
                         }
@@ -181,18 +174,12 @@ public class PAWSUMInterface implements UMInterface {
                 user_content_k = 0.0;
             else
                 user_content_k = user_content_k / sum_weights;
-//            if (content_provider.equalsIgnoreCase("webex") && content_name.equals("variables1_v2")) {
-//            	System.out.println("K for example "+content_name+" : "+user_content_k);
-//            }
             kpvalues[0] = user_content_k;
-//            if (content_provider.equalsIgnoreCase("webex")) {
-//            	
-//            	//System.out.println("K for example "+content_name+" : "+kpvalues[0]);
-//            }
-
+            
+            // Progress level of examples and animated exmaples
             double user_content_p = 0.0;
-            if (content_provider.equalsIgnoreCase("webex")) {
-                // System.out.println("K for example "+content_name+" : "+kpvalues[0]);
+            if (content_provider.equalsIgnoreCase("webex") || content_provider.equalsIgnoreCase("animatedexamples")) {
+                
                 if (examples_activity == null  ||  examples_activity.get(content_name) == null) {
                     user_content_p = 0.0;
                 } else {
@@ -209,18 +196,17 @@ public class PAWSUMInterface implements UMInterface {
                     kpvalues[5] = distinct_actions;
                     kpvalues[6] = total_lines;
                 }
-                
+             // System.out.println("K for example "+content_name+" : "+kpvalues[0]);	
                 //knowledge, progress, attempts/loads, success rate, completion, other 1, other 2
 
             }
             // Progress level related with Questions
-            if (content_provider.equalsIgnoreCase("quizjet")) {
+            if (content_provider.equalsIgnoreCase("quizjet") || content_provider.equalsIgnoreCase("sqlknot")) {
                 if (questions_activity == null || questions_activity.get(content_name) == null) {
                     user_content_p = 0.0;
                 } else {
 
-                    String[] question_activity = questions_activity
-                            .get(content_name);
+                    String[] question_activity = questions_activity.get(content_name);
                     double nattemtps = Double.parseDouble(question_activity[1]);
                     double nsuccess = Double.parseDouble(question_activity[2]);
                     if (nsuccess > 0) user_content_p = 1.0;
@@ -235,16 +221,11 @@ public class PAWSUMInterface implements UMInterface {
             kpvalues[1] = user_content_p;
 
             contentSummary.put(content_name, kpvalues);
-//            if(content_provider.equalsIgnoreCase("webex") && content_name.equals("variables1_v2")){
-//            	System.out.println("k,p : "+kpvalues[0]+"    "+kpvalues[1]);
-//            }
         }
         return contentSummary;
     }
 
-    
-    
-    
+
     // ////////////////////////////////////////////
     // LOCAL CLASS METHODS
     // ////////////////////////////////////////////
@@ -326,6 +307,14 @@ public class PAWSUMInterface implements UMInterface {
             if (domain.equalsIgnoreCase("sql")) {
                 url = new URL(conceptLevelsServiceURL
                         + "?typ=con&dir=out&frm=xml&app=23&dom=sql_ontology"
+                        + "&usr=" + URLEncoder.encode(usr, "UTF-8") + "&grp="
+                        + URLEncoder.encode(grp, "UTF-8"));
+
+            }
+            // TODO @@@@
+            if (domain.equalsIgnoreCase("c")) {
+                url = new URL(conceptLevelsServiceURL
+                        + "?typ=con&dir=out&frm=xml&app=23&dom=c_programming"
                         + "&usr=" + URLEncoder.encode(usr, "UTF-8") + "&grp="
                         + URLEncoder.encode(grp, "UTF-8"));
 
