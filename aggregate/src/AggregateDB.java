@@ -552,19 +552,21 @@ public class AggregateDB extends dbInterface {
         try {
             ArrayList<String[]> res = new ArrayList<String[]>();
             stmt = conn.createStatement();
-            String query = "select resource_name,display_name,`desc`,visible,update_state_on,`order` from ent_resource " +
+            String query = "select resource_name,display_name,`desc`,visible,update_state_on,`order`,window_width,window_height from ent_resource " +
             		   "where course_id=\'"+course_id+"\' order by `order`;";
             rs = stmt.executeQuery(query);
             int i = 0;
             while (rs.next()) {
-                String[] resource = new String[6];
+                String[] resource = new String[8];
                 resource[0] = rs.getString("resource_name");
                 resource[1] = rs.getString("display_name");
                 resource[2] = rs.getString("desc");
                 resource[3] = rs.getString("visible");
                 resource[4] = rs.getString("update_state_on");
                 resource[5] = rs.getString("order");
-                res.add(resource);
+                resource[6] = rs.getString("window_width");
+                resource[7] = rs.getString("window_height");
+                    res.add(resource);
                 //System.out.println(resource[0]+" | "+resource[1]+" | "+resource[2]+" | "+resource[3]+" | "+resource[4]);
                 i++;
             }

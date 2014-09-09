@@ -1162,7 +1162,8 @@ public class Aggregate {
                 + "  resources:[ \n";
         for(String[] r : resourceList){
             if(r[4] == null || r[4].length()<3) r[4] = "010";
-            res += "    {id:\"" + r[0] + "\",name:\"" + r[1] + "\", " +
+            res += "    {id:\"" + r[0] + "\",name:\"" + r[1] + "\", " + 
+            	   "dim:{w:"+r[6]+",h:"+r[7]+"}," +
                    "updateStateOn: {done: " + ((r[4].charAt(0)=='1')?"true":"false") +
                    ", winClose: " + ((r[4].charAt(1)=='1')?"true":"false") +
                    ", winCloseIfAct: " + ((r[4].charAt(2)=='1')?"true":"false") + "}},\n";
