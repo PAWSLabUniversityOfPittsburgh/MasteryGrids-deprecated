@@ -157,15 +157,15 @@ iframe.act  { width: 100%; height: 80%; border: 0px; margin: 0px; padding: 0px; 
 
 
 /* Activity window */
-#act                         { display: none; position: fixed; top: 0px; right: 0px; bottom: 0px; left: 0px; padding-top: 40px; text-align: center; background-color: rgba(0,0,0,0.35); z-index: 160; }
+#act                         { display: none; position: fixed; top: 0px; right: 0px; bottom: 0px; left: 0px; padding-top: 20px; text-align: center; background-color: rgba(0,0,0,0.35); z-index: 160; }
 #act-tbl                     { background-color: #eeeeee; border: 1px solid #444444; -webkit-box-shadow: 0px 0px 8px #222222; -moz-box-shadow: 0px 0px 8px #222222; box-shadow: 0px 0px 8px #222222; -moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px; }
 #act-title                   { padding: 4px 12px 4px 12px; text-align: left; font-size: 12px; }
 #act-fb-diff-cont            { display: none; background-color: #ffe1a8; border-top: 1px solid #aaaaaa; text-align: right; padding: 4px 17px 4px 0px; }
 #act-fb-diff-txt             { margin-right: 10px; font-weight: bold; }
 #act-fb-rec-cont             { display: none; background-color: #ffe1a8; border-top: 1px solid #aaaaaa; text-align: right; padding: 4px 17px 4px 0px; }
 #act-fb-rec-txt              { margin-right: 10px; font-weight: bold; }
-#act-frame                   { width: 800px; height: 460px; margin: 0px; padding: 0px; background-color: #ffffff; border: 0px; border-left: 4px solid #faa200; }
-#act-frame-rec               { display: none; width: 800px; height: 460px; margin: 0px; padding: 0px; background-color: #ffffff; border: 0px; border-left: 4px solid #faa200; }
+#act-frame                   { width: 800px; height: 420px; margin: 0px; padding: 0px; background-color: #ffffff; border: 0px; border-left: 4px solid #faa200; }
+#act-frame-rec               { display: none; width: 800px; height: 420px; margin: 0px; padding: 0px; background-color: #ffffff; border: 0px; border-left: 4px solid #faa200; }
 #act-td-frame                { background-color: #eeeeee; border-top: 1px solid #666666; border-bottom: 1px solid #666666; padding: 0px; }
 #act-td-btns                 { border-top: 1px solid #aaaaaa; text-align: right; padding: 4px 20px 6px 0px; }
 #act-close                   { margin-left: 40px; }

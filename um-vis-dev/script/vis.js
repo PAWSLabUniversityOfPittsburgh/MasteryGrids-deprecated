@@ -65,22 +65,27 @@ var CONST = {
     gridAbsAct       : { w:600,        padding: { l:35, r:10, t:1, b:10 }, sq:     { w: 26, padding:1 },          sepX: 15, scales: { y: [0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0]                                     } },
     gridDevAct       : { w:600,        padding: { l:35, r:10, t:1, b:10 }, sq:     { w: 26, padding:1 },          sepX: 15, scales: { y: [-1.0, -0.8, -0.6, -0.5, -0.4, -0.2, 0.0, 0.2, 0.4, 0.5, 0.6, 0.8, 1.0] } },
     
+    actWindow        : { w:800, h:420},
+    
     otherIndCellH    : { def: 12, min: 2, max: 20 },  // [px]
     minCellSizeRatio : 0.25,
     mode             : { grp: 0, ind: 1 },
+    seqStars         : true,
     colors             : {
         //me               : colorbrewer.PuRd,
         me               : colorbrewer.Greens,
-        //grp              : colorbrewer.Blues,
-        grp              : colorbrewer.OrRd,
+        grp              : colorbrewer.Blues,
+        //grp              : colorbrewer.OrRd,
 //        rev              : [],
 //        grpRev           : [],
 //        spectralRev      : [],
         spectral         : colorbrewer.Spectral,
-        indiv            : colorbrewer.Greys
+        indiv            : colorbrewer.Greys,
+        sequencing       : colorbrewer.OrRd[6][5]
         
     }
   },
+  comparison         : { grpActive : true, meGrpActive : true, othersActive : true},
 
   uriServer  : "http://adapt2.sis.pitt.edu/aggregate/"
   //uriServer  : "http://localhost:8080/aggregate_git/"
@@ -559,14 +564,15 @@ function helpDialogShow(origin,x,y){
     var helpTitle = "title "+origin;
     var helpSrc   = "help/help.html";
     if (origin === "") {helpTitle = ""; helpSrc = "";}
-    $$("span", ui.vis.helpDlgTitle, "help-title-text", "", helpTitle);
+    //$$("span", ui.vis.helpDlgTitle, "help-title-text", "", helpTitle);
     $($$input("button", ui.vis.helpDlgTitle, "btn-act-lst-close", "small-btn", "close")).button().click(helpDialogHide);
     
  
     ui.vis.helpDlg.style.width = "250px";
     ui.vis.helpDlg.style.height = "150px";
     
-    ui.vis.helpDlgCont.innerHTML='<object type="text/html" data="'+helpSrc+'" ></object>';
+    //ui.vis.helpDlgCont.innerHTML='<object type="text/html" data="'+helpSrc+'" ></object>';
+    ui.vis.helpDlgCont.innerHTML = generateHelp(origin);
     
     $show(ui.vis.helpDlg);
     
@@ -595,7 +601,6 @@ function actLstShow(doMe, doVs, doGrp) {
   state.vis.lastCellSel.cellSel = state.vis.grid.cellSel;
   state.vis.lastCellSel.topicIdx = state.vis.grid.topicIdx;
   state.vis.lastCellSel.gridName = state.vis.grid.name;
-  
   
   if (state.vis.topicIdx === 0) actLstHide();  // the "average" topic has been clicked
   $removeChildren(ui.vis.actLst.cont);
@@ -668,6 +673,8 @@ function actLstShow(doMe, doVs, doGrp) {
         
         break;
     }
+    
+    
   }
   
   // (2) Align the list:
@@ -686,6 +693,7 @@ function actLstShow(doMe, doVs, doGrp) {
     $setPosCenter(ui.vis.actLst.cont,  false, ui.vis.actLst.topicCellX[state.vis.topicIdx - 1] + $getCoords($("#grids")[0]).x1, y,      true );
     $setPosCenter(ui.vis.actLst.arrow, false, ui.vis.actLst.topicCellX[state.vis.topicIdx - 1] + $getCoords($("#grids")[0]).x1, y - 15, false);
   }
+  
 }
 
 
@@ -717,6 +725,7 @@ function actOpen(resId, actIdx) {
     //alert('open activity');
   var topic = getTopic();
   var act = topic.activities[resId][actIdx];
+  var res = getRes(resId);
   
   state.vis.act.act    = act;
   state.vis.act.resId  = resId;
@@ -726,6 +735,25 @@ function actOpen(resId, actIdx) {
   $hide(ui.vis.act.fbDiffCont);
   $hide(ui.vis.act.fbRecCont);
   $hide(ui.vis.act.frameRec);
+  
+  // get the size of the screen
+  //alert(resId);
+  
+  // TODO
+  if(res.dim){
+      if(res.dim.w) ui.vis.act.frame.style.width = res.dim.w + "px";
+      if(res.dim.w) ui.vis.act.frame.style.height = res.dim.h + "px";
+      //ui.vis.act.frameRec.style.width = "930px";
+      //ui.vis.act.frameRec.style.width = "930px";
+  }else{
+      ui.vis.act.frame.style.width = CONST.vis.actWindow.w;
+      ui.vis.act.frame.style.width = CONST.vis.actWindow.h;
+  }
+//  if(resId === 'ae'){
+//      
+//      ui.vis.act.frame.style.width ="930px";
+//      ui.vis.act.frameRec.style.width = "930px";
+//  }
   
   $show(ui.vis.act.frame);
   $show(ui.vis.act.cont);
@@ -834,6 +862,20 @@ function compModeSet(mode) {
   visDo(true, true, true);
   
   log("action" + CONST.log.sep02 + "comparison-mode-set", true);
+}
+
+/**
+ * Shows or hide comparison and group grids
+ */
+function comparisonVisible(showGrp, showMeVsGrp, showOthers) {
+  if (state.args.uiGridActLstMode) actLstHide();
+  state.args.uiGridGrpVis = showGrp;
+  state.args.uiGridMeGrpVis = showMeVsGrp;
+  state.args.uiGridOthersVis = showOthers;
+
+  visDo(true, true, true);
+  
+  log("action" + CONST.log.sep02 + "comparison-visible("+(showGrp ? "1" : "0")+","+(showMeVsGrp ? "1" : "0")+","+(showOthers ? "1" : "0")+")", true);
 }
 
 
@@ -1013,15 +1055,32 @@ function initUI() {
       if (!state.args.uiTBarTopicSizeVis ? $("#tbar-topic-size-cont") .hide() : $("#tbar-topic-size-cont") .show());
       if (!state.args.uiTBarGrpVis       ? $("#tbar-grp-cont")        .hide() : $("#tbar-grp-cont")        .show());
       if (!state.args.uiTBarResVis       ? $("#tbar-res-cont")        .hide() : $("#tbar-res-cont")        .show());
+      // @@@@@
+      $("#tbar-grp-cell-h").hide();
+      $("#tbar-grp-cell-h-unit").hide();
     }
     
     // (1.2) Tooltips:
     $(document).tooltip();
     
     // (1.3) Toolbar:
+    if(state.args.uiTBarModeGrpChk){
+        $("#tbar-mode-01")[0].checked = true;
+        $("#tbar-mode-02")[0].checked = false;
+    }else{
+        $("#tbar-mode-01")[0].checked = false;
+        $("#tbar-mode-02")[0].checked = true;
+    }
+ 
     $("#tbar-mode").buttonset();
-    $("#tbar-mode-01").click(function () { compModeSet(CONST.vis.mode.grp); });
-    $("#tbar-mode-02").click(function () { compModeSet(CONST.vis.mode.ind); });
+    $("#tbar-mode-01").click(function () {
+        comparisonVisible(CONST.comparison.grpActive, CONST.comparison.meGrpActive, CONST.comparison.othersActive);
+        //compModeSet(CONST.vis.mode.grp); 
+    });
+    $("#tbar-mode-02").click(function () { 
+        comparisonVisible(false, false, false);
+        //compModeSet(CONST.vis.mode.ind); 
+    });
     
     $("#tbar-grp-cell-h")[0].selectedIndex = state.vis.otherIndCellH - CONST.vis.otherIndCellH.min;
 
@@ -1506,7 +1565,9 @@ function stateArgsSet02() {
   
   // UI: Toolbar:
   state.args.uiTBarVis              = (qs["ui-tbar-vis"]            === "0" ? false : true);
+
   state.args.uiTBarModeVis          = (qs["ui-tbar-mode-vis"]       === "0" ? false : true);
+  state.args.uiTBarModeGrpChk       = (qs["ui-tbar-mode-grp-chk"]   === "0" ? false : true);
   state.args.uiTBarRepLvlVis        = (qs["ui-tbar-rep-lvl-vis"]    === "0" ? false : true);
   state.args.uiTBarTopicSizeVis     = (qs["ui-tbar-topic-size-vis"] === "0" ? false : true);
   state.args.uiTBarGrpVis           = (qs["ui-tbar-grp-vis"]        === "0" ? false : true);
@@ -1544,6 +1605,8 @@ function stateArgsSet02() {
       state.args.defValResId            = (data.vis.ui.params.group.defValResId != undefined ? data.vis.ui.params.group.defValResId : state.args.defValResId);
       state.args.uiTBarVis              = (data.vis.ui.params.group.uiTBarVis != undefined ? data.vis.ui.params.group.uiTBarVis : state.args.uiTBarVis);
       state.args.uiTBarModeVis          = (data.vis.ui.params.group.uiTBarModeVis != undefined ? data.vis.ui.params.group.uiTBarModeVis : state.args.uiTBarModeVis);
+      state.args.uiTBarModeGrpChk       = (data.vis.ui.params.group.uiTBarModeGrpChk != undefined ? data.vis.ui.params.group.uiTBarModeGrpChk : state.args.uiTBarModeGrpChk);
+
       state.args.uiTBarRepLvlVis        = (data.vis.ui.params.group.uiTBarRepLvlVis != undefined ? data.vis.ui.params.group.uiTBarRepLvlVis : state.args.uiTBarRepLvlVis);
       state.args.uiTBarTopicSizeVis     = (data.vis.ui.params.group.uiTBarTopicSizeVis != undefined ? data.vis.ui.params.group.uiTBarTopicSizeVis : state.args.uiTBarTopicSizeVis);
       state.args.uiTBarGrpVis           = (data.vis.ui.params.group.uiTBarGrpVis != undefined ? data.vis.ui.params.group.uiTBarGrpVis : state.args.uiTBarGrpVis);
@@ -1569,6 +1632,8 @@ function stateArgsSet02() {
       state.args.defValResId            = (data.vis.ui.params.user.defValResId != undefined ? data.vis.ui.params.user.defValResId : state.args.defValResId);
       state.args.uiTBarVis              = (data.vis.ui.params.user.uiTBarVis != undefined ? data.vis.ui.params.user.uiTBarVis : state.args.uiTBarVis);
       state.args.uiTBarModeVis          = (data.vis.ui.params.user.uiTBarModeVis != undefined ? data.vis.ui.params.user.uiTBarModeVis : state.args.uiTBarModeVis);
+      state.args.uiTBarModeGrpChk       = (data.vis.ui.params.user.uiTBarModeGrpChk != undefined ? data.vis.ui.params.user.uiTBarModeGrpChk : state.args.uiTBarModeGrpChk);
+
       state.args.uiTBarRepLvlVis        = (data.vis.ui.params.user.uiTBarRepLvlVis != undefined ? data.vis.ui.params.user.uiTBarRepLvlVis : state.args.uiTBarRepLvlVis);
       state.args.uiTBarTopicSizeVis     = (data.vis.ui.params.user.uiTBarTopicSizeVis != undefined ? data.vis.ui.params.user.uiTBarTopicSizeVis : state.args.uiTBarTopicSizeVis);
       state.args.uiTBarGrpVis           = (data.vis.ui.params.user.uiTBarGrpVis != undefined ? data.vis.ui.params.user.uiTBarGrpVis : state.args.uiTBarGrpVis);
@@ -1587,6 +1652,16 @@ function stateArgsSet02() {
       state.args.uiGridTimelineTitle    = "";
       state.args.uiGridActLstMode       = (data.vis.ui.params.user.uiGridActLstMode != undefined ? data.vis.ui.params.user.uiGridActLstMode : state.args.uiGridActLstMode);
       state.args.uiShowHelp             = (data.vis.ui.params.user.uiShowHelp != undefined ? data.vis.ui.params.user.uiShowHelp : state.args.uiShowHelp);    
+  }
+  
+  CONST.comparison.grpActive        = state.args.uiGridGrpVis;
+  CONST.comparison.meGrpActive      = state.args.uiGridMeGrpVis;
+  CONST.comparison.othersActive     = state.args.uiGridOthersVis;
+  
+  if(!state.args.uiTBarModeGrpChk){
+      state.args.uiGridGrpVis = false;
+      state.args.uiGridMeGrpVis = false;
+      state.args.uiGridOthersVis = false;
   }
   
 }
@@ -2802,19 +2877,35 @@ function visGenGrid(cont, gridData, settings, title, tbar, doShowYAxis, doShowXL
     
     // Grid cells -- Sequencing:
     if (s.doShowSeq) {
-      g.
-        append("circle").
-        attr("class", "seq").
-        attr("cx", 6).
-        attr("cy", 6).
-        //attr("r", function (d) { return (d.seq === 0 ? 0 : Math.max(d.seq * 4, 1)); }).
-        attr("r", function (d) { return (d.seq === 0 ? 0 : 3); }).
-        // append("path").
-        // attr("class", "seq").
-        // attr("d", function (d,i) { return (i > 0 && Math.random() <= 0.10 ? "M0,8 v-6 l2,-2 h6 z" : "M0,0"); }).
-        attr("style", function (d) { return "fill: " + CONST.vis.colors.me[6][5] + ";"; }).
-        //attr("style", function (d) { return "fill: #000000;" }).
-        style("shape-rendering", "geometricPrecision");
+        if(CONST.vis.seqStars){
+            g
+            .append("svg:polygon")
+            .attr("id", "star_1")
+            .attr("visibility", "visible")
+            //.attr("points", CalculateStarPoints(6, 6, function (d) { return (d.seq === 0 ? 0 : 5); }, 10, 5))
+            .attr("points", function (d) {  return (d.seq === 0 ? "0,0" : CalculateStarPoints(6, 6, 5, Math.max((2+Math.round(8*(d.seq-0.50)/0.5)),4), Math.max((2+Math.round(8*(d.seq-0.50)/0.5))/2,2))); })
+            .attr("style", function (d) { return "fill: " + CONST.vis.colors.sequencing + ";"; })
+            //.attr("style", function (d) { return "border: 1px solid #FFFFFF;"; })
+            .attr("stroke", "white")
+            .style("shape-rendering", "geometricPrecision");
+        }else{
+            g.
+            append("circle").
+            attr("class", "seq").
+            attr("cx", 6).
+            attr("cy", 6).
+            //attr("r", function (d) { return (d.seq === 0 ? 0 : Math.max(d.seq * 4, 1)); }).
+            attr("r", function (d) { return (d.seq === 0 ? 0 : 4); }).
+            attr("stroke", "white").
+
+            // append("path").
+            // attr("class", "seq").
+            // attr("d", function (d,i) { return (i > 0 && Math.random() <= 0.10 ? "M0,8 v-6 l2,-2 h6 z" : "M0,0"); }).
+            attr("style", function (d) { return "fill: " + CONST.vis.colors.sequencing + ";"; }).
+            //attr("style", function (d) { return "fill: #000000;" }).
+            style("shape-rendering", "geometricPrecision"); 
+        }
+ 
     }
     
     //g.on("mouseover", function (d,i) { console.log(d); })
@@ -3227,10 +3318,10 @@ function ehVisGridBoxClick(e, grpOutter) {
   var res   = data.resources[resIdx];
   var act   = (actIdx === -1 ? null : topic.activities[res.id][actIdx]);
   
-  
+  //alert(grpInner.data()[0].seq);
   // (1) Activities list mode:
   if (state.args.uiGridActLstMode) {
-	
+      //alert(grpInner.data()[0].seq);
     // (1.1) Topics grid:
     if ((gridName === "me" || gridName === "me vs grp" || gridName === "grp")) {
       if (topicIdx === state.vis.topicIdx && state.vis.grid.name === gridName) return;  // the already-selected topic has been clicked (and on the same grid at that)
@@ -3241,7 +3332,14 @@ function ehVisGridBoxClick(e, grpOutter) {
       state.vis.grid.name       = gridName;
       
       if (state.vis.topicIdx === 0) return actLstHide();  // the average topic has been clicked or the already-selected topic has been clicked
-      
+      log(
+              "action"               + CONST.log.sep02 + "grid-topic-cell-select"     + CONST.log.sep01 +
+              "cell-topic-id"    + CONST.log.sep02 + getTopic().id       + CONST.log.sep01 +
+              "grid-name"    + CONST.log.sep02 + gridName       + CONST.log.sep01 +
+              "resource-id" + CONST.log.sep02 + state.vis.act.resId + CONST.log.sep01 +
+              "sequencing" + CONST.log.sep02 + grpInner.data()[0].seq,
+              true
+           );
       return actLstShow(gridName === "me", gridName === "me vs grp", gridName === "grp");
     }
     
@@ -3277,12 +3375,14 @@ function ehVisGridBoxClick(e, grpOutter) {
       state.vis.grid.cellIdxSel = cellIdx;
       state.vis.grid.cellSel    = grpOutter;
       
+              
       log(
         "action"           + CONST.log.sep02 + "grid-activity-cell-select" + CONST.log.sep01 +
         "grid-name"        + CONST.log.sep02 + gridName                    + CONST.log.sep01 +
         "cell-topic-id"    + CONST.log.sep02 + topic.id                    + CONST.log.sep01 +
         "cell-resource-id" + CONST.log.sep02 + res.id                      + CONST.log.sep01 +
-        "cell-activity-id" + CONST.log.sep02 + act.id,
+        "cell-activity-id" + CONST.log.sep02 + act.id                      + CONST.log.sep01 + 
+        "sequencing"       + CONST.log.sep02 + grpInner.data()[0].seq,
         true
       );
       
@@ -3598,4 +3698,143 @@ function visToggleSeries(name) {
     $show(svg01);
     $show(svg02);
   }
+}
+
+//------------------------------------------------------------------------------------------------------
+function CalculateStarPoints(centerX, centerY, arms, outerRadius, innerRadius){
+   var results = "";
+ 
+   var angle = Math.PI / arms;
+   //alert(outerRadius);
+   for (var i = 0; i < 2 * arms; i++){
+      // Use outer or inner radius depending on what iteration we are in.
+      var r = (i & 1) == 0 ? outerRadius : innerRadius;
+      
+      var currX = centerX + Math.cos(i * angle) * r;
+      var currY = centerY + Math.sin(i * angle) * r;
+ 
+      // Our first time we simply append the coordinates, subsequet times
+      // we append a ", " to distinguish each coordinate pair.
+      if (i == 0){
+         results = currX + "," + currY;
+      }
+      else{
+         results += ", " + currX + "," + currY;
+      }
+   }
+   return results;
+}
+
+
+function generateHelp(origin){
+    var helpText = "";
+    if(origin === "one-res-me-h"){
+        helpText = "<h3 style='margin: 0px; padding: 0px 10px 0px 0px;'>My Progress Grid</h3><p>This row represents your progress in the topics of the course. Each topic is a cell. Gray means 0% of progress and darker color means more progress.</p>";
+        helpText += "<table border=0 cellpadding=0 cellspacing=0>";
+        helpText += "<tr>" +
+        		"<td style='padding:2px 5px 2px 0px;'>0%</td>" +
+        		"<td style='background-color:rgb(238, 238, 238); padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+        		"<td style='background-color:#edf8e9; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+        		"<td style='background-color:#c7e9c0; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+        		"<td style='background-color:#a1d99b; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+        		"<td style='background-color:#74c476; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+        		"<td style='background-color:#31a354; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+        		"<td style='background-color:#006d2c; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+        		"<td style='padding:2px 0px 2px 5px;'>100%</td>" +
+        		"</tr>";
+        helpText += "</table>";
+        //"#edf8e9","#c7e9c0","#a1d99b","#74c476","#31a354","#006d2c"
+    }
+    if(origin === "one-res-mevsgrp-h"){
+        helpText = "<h3 style='margin: 0px; padding: 0px 10px 0px 0px;'>Comparison Grid</h3><p style='margin-top: 2px;margin-bottom:5px;'>This row shows the <i>difference</i> between your progress and the average progress of other students. <span style='color: #006d2c;font-weight:bold;'>GREEN</span> color means you have more progress than the others and <span style='color: #08519c;font-weight:bold;'>BLUE</span> color means that in average other students are more advance than you. Gray means equal progress. </p>";
+        helpText += "<table border=0 cellpadding=0 cellspacing=0>";
+        helpText += "<tr>" +
+                "<td style='padding:2px 5px 2px 0px;font-size: 10px;'>group +</td>" +
+                "<td style='background-color:#08519c; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#3182bd; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#6baed6; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#9ecae1; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#c6dbef; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:rgb(238, 238, 238); padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#c7e9c0; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#a1d99b; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#74c476; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#31a354; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#006d2c; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='padding:2px 0px 2px 5px;font-size: 10px;'>you +</td>" +
+                "</tr>";
+        helpText += "</table>";
+    }
+    if(origin === "one-res-grp-h"){
+        helpText = "<h3 style='margin: 0px; padding: 0px 10px 0px 0px;'>Group Grid</h3><p>This row shows the average of progress of other students in the class using <span style='color: #08519c;font-weight:bold;'>BLUE</span> colors. Depending on the set up of Mastery Grids, others students might include all the class or top students.</p>";
+        helpText += "<table border=0 cellpadding=0 cellspacing=0>";
+        helpText += "<tr>" +
+                "<td style='padding:2px 5px 2px 0px;'>0%</td>" +
+                "<td style='background-color:rgb(238, 238, 238); padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#eff3ff; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#c6dbef; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#9ecae1; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#6baed6; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#3182bd; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#08519c; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='padding:2px 0px 2px 5px;'>100%</td>" +
+                "</tr>";
+        helpText += "</table>";
+        //["#eff3ff","#c6dbef","#9ecae1","#6baed6","#3182bd","#08519c"],
+    }
+    if(origin === "all-res-me-h"){
+        helpText = "<h3 style='margin: 0px; padding: 0px 10px 0px 0px;'>My Progress Grid</h3><p style='margin-top: 2px;'>This grid represents your progress in the topics. Each topic is a column. " +
+        		   "First row shows <b>average</b> across different types of content. Other rows shows progress within specific types of content (quizzes, examples). Gray means 0% of progress and darker color means more progress.</p>";
+        helpText += "<table border=0 cellpadding=0 cellspacing=0>";
+        helpText += "<tr>" +
+                "<td style='padding:2px 5px 2px 0px;'>0%</td>" +
+                "<td style='background-color:rgb(238, 238, 238); padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#edf8e9; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#c7e9c0; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#a1d99b; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#74c476; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#31a354; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#006d2c; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='padding:2px 0px 2px 5px;'>100%</td>" +
+                "</tr>";
+        helpText += "</table>";
+    }
+    if(origin === "all-res-mevsgrp-h"){
+        helpText = "<h3 style='margin: 0px; padding: 0px 10px 0px 0px;'>Comparison Grid</h3><p style='margin-top: 2px;margin-bottom:5px;'>" +
+        		"This grid shows the <i>difference</i> between your progress (<span style='color: #006d2c;font-weight:bold;'>GREEN</span>) and other students progress (<span style='color: #08519c;font-weight:bold;'>BLUE</span>). The cell are colored depending on this difference: if you see a green cell, it means you are more advance than the average of other students in the corresponding topic.</p>";        
+        helpText += "<table border=0 cellpadding=0 cellspacing=0>";
+        helpText += "<tr>" +
+                "<td style='padding:2px 5px 2px 0px;font-size: 10px;'>group +</td>" +
+                "<td style='background-color:#08519c; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#3182bd; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#6baed6; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#9ecae1; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#c6dbef; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:rgb(238, 238, 238); padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#c7e9c0; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#a1d99b; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#74c476; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#31a354; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#006d2c; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='padding:2px 0px 2px 5px;font-size: 10px;'>you +</td>" +
+                "</tr>";
+        helpText += "</table>";
+    }
+    if(origin === "all-res-grp-h"){
+        helpText = "<h3 style='margin: 0px; padding: 0px 10px 0px 0px;'>Group progress</h3><p>This grid shows the average of progress of other students in the class using . Depending on the set up of Mastery Grids, others students might include all the class or top students using <span style='color: #08519c;font-weight:bold;'>BLUE</span> colors.</p>";        
+        helpText += "<table border=0 cellpadding=0 cellspacing=0>";
+        helpText += "<tr>" +
+                "<td style='padding:2px 5px 2px 0px;'>0%</td>" +
+                "<td style='background-color:rgb(238, 238, 238); padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#eff3ff; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#c6dbef; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#9ecae1; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#6baed6; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#3182bd; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#08519c; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='padding:2px 0px 2px 5px;'>100%</td>" +
+                "</tr>";
+        helpText += "</table>";
+    }
+    return helpText;
 }
