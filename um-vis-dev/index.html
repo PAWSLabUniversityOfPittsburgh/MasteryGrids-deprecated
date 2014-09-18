@@ -55,12 +55,21 @@
   <span id="tbar-mode-cont">
     <span>Comparison</span>
     <span id="tbar-mode">
-      <input type="radio" id="tbar-mode-01" name="tbar-mode" checked="checked" /><label for="tbar-mode-01">Group</label>
-      <input type="radio" id="tbar-mode-02" name="tbar-mode"                   /><label for="tbar-mode-02">Individual</label>
+      <input type="radio" id="tbar-mode-02" name="tbar-mode" checked="checked" /><label for="tbar-mode-02">Individual</label>
+      <input type="radio" id="tbar-mode-01" name="tbar-mode" /><label for="tbar-mode-01">Group</label>
     </span>
     
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   </span>
+  
+  <!--span id="tbar-comparison-cont">
+    <span>Comparison: </span>
+    <span id="tbar-mode">
+      <input type="checkbox" id="tbar-comparison" name="tbar-comparison" /><label for="tbar-comparison">Show Group</label>
+    </span>
+    
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span-->
   
   <span id="tbar-rep-lvl-cont">
     <span>Report level</span>
@@ -102,7 +111,7 @@
       <option value="18">18</option>
       <option value="19">19</option>
       <option value="20">20</option>
-    </select>px
+    </select><span id="tbar-grp-cell-h-unit">px</span>
     
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   </span>
@@ -115,6 +124,10 @@
     </select>
   </span>
 </div>
+
+<!--div id="color-legend">
+
+</div-->
 
 
 <div id="grids">
@@ -175,12 +188,7 @@
   </table>
 </div>
 
-
 <!-- Footer -->
 <!-- <div id="footer"><nobr>Tomek D Loboda &bull; 2013</nobr></div> -->
-
-
 </body>
-
-
 </html>

@@ -2956,7 +2956,7 @@ function visGenGrid(cont, gridData, settings, title, tbar, doShowYAxis, doShowXL
         attr("r", function (d,i) {
           if (i ===  0) return 0;
           if(data.topics[i].timeline){
-              return  (data.topics[i].timeline.current ? 8 : 4);
+              return  (data.topics[i].timeline.current ? 6 : 3);
           }  
           
           //if (i <=  14) return 4;

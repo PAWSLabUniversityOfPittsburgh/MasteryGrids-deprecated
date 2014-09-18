@@ -109,8 +109,11 @@ svg g.timeline line            { stroke: #222222; stroke-width: 1; }
 /* svg g.timeline circle.current  { fill: #00cc1b; stroke: #000000; } */
 
 svg g.timeline circle          { fill: #eeeeee; stroke: #222222; }
-svg g.timeline circle.covered  { fill: #00aa1b; stroke: #222222; }
-svg g.timeline circle.current  { fill: #dd401b; stroke: #000000; }
+/*svg g.timeline circle.covered  { fill: #00aa1b; stroke: #222222; } */
+/*svg g.timeline circle.current  { fill: #dd401b; stroke: #000000; } */
+
+svg g.timeline circle.covered  { fill: #333333; stroke: #222222; }
+svg g.timeline circle.current  { fill: #fe9929; stroke: #000000; }
 
 
 svg g.timeline path            { stroke-width: 1px; }
