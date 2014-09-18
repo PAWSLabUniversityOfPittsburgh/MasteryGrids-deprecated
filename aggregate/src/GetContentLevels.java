@@ -81,12 +81,13 @@ public class GetContentLevels extends HttpServlet {
         } catch (Exception e) {
             top = 3;
         }
-        if (cid != null && cid.length() > 0)
+        if (cid != null && cid.length() > 0){
             try {
                 int c = Integer.parseInt(cid);
             } catch (Exception e) {
                 cid = "-1";
-            }
+            }        	
+        }
 
         // the main object
         Aggregate aggregate;

@@ -312,29 +312,93 @@ public class AggregateDB extends dbInterface {
 
     }
 
+    // DEPRECATED
+//    public void insertPrecomputedModel(String user, String course_id,
+//            String group_id, String sid, String model4topics,
+//            String model4content) {
+//        try {
+//            stmt = conn.createStatement();
+//            String query = "INSERT INTO ent_precomputed_models (user_id,course_id,group_id,session_id,computedon,model4topics,model4content) values ('"
+//                    + user
+//                    + "',"
+//                    + course_id
+//                    + ",'"
+//                    + group_id
+//                    + "','"
+//                    + sid
+//                    + "',now(),'"
+//                    + model4topics
+//                    + "','"
+//                    + model4content
+//                    + "');";
+//            // System.out.println(query);
+//            if (stmt.execute(query)) {
+//                // ;
+//            }
+//            this.releaseStatement(stmt, rs);
+//        } catch (SQLException ex) {
+//            System.out.println("SQLException: " + ex.getMessage());
+//            System.out.println("SQLState: " + ex.getSQLState());
+//            System.out.println("VendorError: " + ex.getErrorCode());
+//            this.releaseStatement(stmt, rs);
+//        } finally {
+//            this.releaseStatement(stmt, rs);
+//        }
+//
+//    }
 
-    public void insertPrecomputedModel(String user, String course_id,
-            String group_id, String sid, String model4topics,
-            String model4content) {
+    // @@@@ DEPRECATED    
+//    public void updatePrecomputedModel(String user, String course_id,
+//            String group_id, String sid, String model4topics,
+//            String model4content) {
+//        try {
+//            stmt = conn.createStatement();
+//            String query = "UPDATE ent_precomputed_models SET model4topics='"
+//                    + model4topics + "', model4content='" + model4content
+//                    + "', computedon=now() WHERE user_id = '" + user
+//                    + "' and course_id='" + course_id + "' and group_id = '"
+//                    + group_id + "' and session_id = '" + sid + "';";
+//            // System.out.println(query);
+//            if (stmt.execute(query)) {
+//                // ;
+//            }
+//            this.releaseStatement(stmt, rs);
+//        } catch (SQLException ex) {
+//            System.out.println("SQLException: " + ex.getMessage());
+//            System.out.println("SQLState: " + ex.getSQLState());
+//            System.out.println("VendorError: " + ex.getErrorCode());
+//            this.releaseStatement(stmt, rs);
+//        } finally {
+//            this.releaseStatement(stmt, rs);
+//        }
+//
+//    }
+    
+    // 
+    public void storeComputedModel(String user, String course_id, 
+    		String group_id, String sid, String model4topics, String model4content) {
         try {
-            stmt = conn.createStatement();
-            String query = "INSERT INTO ent_precomputed_models (user_id,course_id,group_id,session_id,computedon,model4topics,model4content) values ('"
-                    + user
-                    + "',"
-                    + course_id
-                    + ",'"
-                    + group_id
-                    + "','"
-                    + sid
-                    + "',now(),'"
-                    + model4topics
-                    + "','"
-                    + model4content
-                    + "');";
-            // System.out.println(query);
-            if (stmt.execute(query)) {
-                // ;
+        	String query = "";
+            
+            if(this.existComputedModel(user, course_id)){
+                query = "UPDATE ent_computed_models SET model4topics='"
+                        + model4topics + "', model4content='" + model4content
+                        + "', last_update=now() WHERE user_id = '" + user
+                        + "' and course_id='" + course_id + "';";            	
+            }else{
+                query = "INSERT INTO ent_computed_models (user_id,course_id,last_update,model4topics,model4content) VALUES " +
+                		"('" +user+ "'," +course_id+ ",now(),'" + model4topics + "','" + model4content + "');";            	
             }
+            stmt = conn.createStatement();
+            System.out.println(query);
+            stmt.execute(query);
+            query = "INSERT INTO ent_computed_models_history (user_id,course_id,group_id,session_id,computedon,model4topics,model4content) values " + 
+                		"('"+ user+ "',"+ course_id+ ",'"+ group_id+ "','"+ sid+ "',now(),'"+ model4topics+ "','"+ model4content+ "');";
+            System.out.println(query);
+            stmt.execute(query);
+
+            // System.out.println(query);
+            
             this.releaseStatement(stmt, rs);
         } catch (SQLException ex) {
             System.out.println("SQLException: " + ex.getMessage());
@@ -347,42 +411,43 @@ public class AggregateDB extends dbInterface {
 
     }
 
-    public void updatePrecomputedModel(String user, String course_id,
-            String group_id, String sid, String model4topics,
-            String model4content) {
-        try {
-            stmt = conn.createStatement();
-            String query = "UPDATE ent_precomputed_models SET model4topics='"
-                    + model4topics + "', model4content='" + model4content
-                    + "', computedon=now() WHERE user_id = '" + user
-                    + "' and course_id='" + course_id + "' and group_id = '"
-                    + group_id + "' and session_id = '" + sid + "';";
-            // System.out.println(query);
-            if (stmt.execute(query)) {
-                // ;
-            }
-            this.releaseStatement(stmt, rs);
-        } catch (SQLException ex) {
-            System.out.println("SQLException: " + ex.getMessage());
-            System.out.println("SQLState: " + ex.getSQLState());
-            System.out.println("VendorError: " + ex.getErrorCode());
-            this.releaseStatement(stmt, rs);
-        } finally {
-            this.releaseStatement(stmt, rs);
-        }
+    
+    // @@@@ DEPRECATED
+//    public boolean existPrecomputedModelForSession(String user,
+//            String course_id, String group_id, String sid) {
+//        int n = 0;
+//        try {
+//            stmt = conn.createStatement();
+//            String query = "SELECT count(*) as npm "
+//                    + "FROM ent_precomputed_models  " + "WHERE user_id='" + user
+//                    + "' and group_id='" + group_id + "' and course_id='"
+//                    + course_id + "' and session_id='" + sid + "';";
+//            // System.out.println(query);
+//            rs = stmt.executeQuery(query);
+//            while (rs.next()) {
+//                n = rs.getInt("npm");
+//            }
+//            this.releaseStatement(stmt, rs);
+//        } catch (SQLException ex) {
+//            System.out.println("SQLException: " + ex.getMessage());
+//            System.out.println("SQLState: " + ex.getSQLState());
+//            System.out.println("VendorError: " + ex.getErrorCode());
+//            this.releaseStatement(stmt, rs);
+//        } finally {
+//            this.releaseStatement(stmt, rs);
+//        }
+//        return n > 0;
+//    }
 
-    }
-
-    public boolean existPrecomputedModelForSession(String user,
-            String course_id, String group_id, String sid) {
+    // Sees if a user has a model for a specific course id
+    public boolean existComputedModel(String user, String course_id) {
         int n = 0;
         try {
             stmt = conn.createStatement();
             String query = "SELECT count(*) as npm "
-                    + "FROM ent_precomputed_models  " + "WHERE user_id='" + user
-                    + "' and group_id='" + group_id + "' and course_id='"
-                    + course_id + "' and session_id='" + sid + "';";
-            // System.out.println(query);
+                    + "FROM ent_computed_models  " + "WHERE user_id='" + user
+                    + "' and course_id='"+ course_id + "';";
+            System.out.println(query);
             rs = stmt.executeQuery(query);
             while (rs.next()) {
                 n = rs.getInt("npm");
@@ -400,21 +465,54 @@ public class AggregateDB extends dbInterface {
     }
 
     // give usr == null or usr == "" to look for all precomputed models within a course
-    public HashMap<String, String[]> getPrecomputedModels(String course_id, String usr) {
+    // @@@@ DEPRECATED
+//    public HashMap<String, String[]> getPrecomputedModels(String course_id, String usr) {
+//        try {
+//            HashMap<String, String[]> res = new HashMap<String, String[]>();
+//            stmt = conn.createStatement();
+//            String query = "SELECT user_id,model4topics,model4content FROM ent_precomputed_models WHERE id in "
+//                    + "(select max(id) from ent_precomputed_models where course_id='" + course_id + "'";
+//            if (usr != null && usr.length()>0) query += " and user_id = '"+usr+"' ";
+//            query += " group by user_id);";
+//            rs = stmt.executeQuery(query);
+//            //System.out.println(query);
+//            String user = "";
+//            String[] models;
+//            while (rs.next()) {
+//                user = rs.getString("user_id");
+//                models = new String[2];
+//                models[0] = rs.getString("model4topics");
+//                models[1] = rs.getString("model4content");
+//                res.put(user, models);
+//            }
+//            this.releaseStatement(stmt, rs);
+//            return res;
+//        } catch (SQLException ex) {
+//            System.out.println("SQLException: " + ex.getMessage());
+//            System.out.println("SQLState: " + ex.getSQLState());
+//            System.out.println("VendorError: " + ex.getErrorCode());
+//            this.releaseStatement(stmt, rs);
+//            return null;
+//        } finally {
+//            this.releaseStatement(stmt, rs);
+//        }
+//    }
+
+    // give usr == null or usr == "" to look for all precomputed models within a course
+    public HashMap<String, String[]> getComputedModels(String course_id, String usr) {
         try {
             HashMap<String, String[]> res = new HashMap<String, String[]>();
             stmt = conn.createStatement();
-            String query = "SELECT user_id,model4topics,model4content FROM ent_precomputed_models WHERE id in "
-                    + "(select max(id) from ent_precomputed_models where course_id='"
-                    + course_id + "'";
-            if (usr != null) query += " and user_id = '"+usr+"' ";
-            query += " group by user_id);";
+            String query = "SELECT user_id,model4topics,model4content FROM ent_computed_models WHERE course_id='" + course_id + "'";
+            if (usr != null && usr.length()>0) query += " and user_id = '"+usr+"'";
+            query += ";";
             rs = stmt.executeQuery(query);
-            //System.out.println(query);
+            System.out.println(query);
             String user = "";
             String[] models;
             while (rs.next()) {
                 user = rs.getString("user_id");
+                System.out.println("Adding user "+user);
                 models = new String[2];
                 models[0] = rs.getString("model4topics");
                 models[1] = rs.getString("model4content");
@@ -433,31 +531,32 @@ public class AggregateDB extends dbInterface {
         }
     }
 
-    public boolean precomputedModelExist(String course_id, String usr) {
-        try {
-            HashMap<String, String[]> res = new HashMap<String, String[]>();
-            stmt = conn.createStatement();
-            String query = "SELECT count(id) as npm FROM ent_precomputed_models WHERE course_id='"
-                    + course_id + "' and user_id = '" + usr + "';";
-            rs = stmt.executeQuery(query);
-            // System.out.println(query);
-            int npm = 0;
-            String[] models;
-            while (rs.next()) {
-                npm = rs.getInt("npm");
-            }
-            this.releaseStatement(stmt, rs);
-            return (npm>0);
-        } catch (SQLException ex) {
-            System.out.println("SQLException: " + ex.getMessage());
-            System.out.println("SQLState: " + ex.getSQLState());
-            System.out.println("VendorError: " + ex.getErrorCode());
-            this.releaseStatement(stmt, rs);
-            return false;
-        } finally {
-            this.releaseStatement(stmt, rs);
-        }
-    }
+    // DEPRECATED
+//    public boolean precomputedModelExist(String course_id, String usr) {
+//        try {
+//            HashMap<String, String[]> res = new HashMap<String, String[]>();
+//            stmt = conn.createStatement();
+//            String query = "SELECT count(id) as npm FROM ent_precomputed_models WHERE course_id='"
+//                    + course_id + "' and user_id = '" + usr + "';";
+//            rs = stmt.executeQuery(query);
+//            // System.out.println(query);
+//            int npm = 0;
+//            String[] models;
+//            while (rs.next()) {
+//                npm = rs.getInt("npm");
+//            }
+//            this.releaseStatement(stmt, rs);
+//            return (npm>0);
+//        } catch (SQLException ex) {
+//            System.out.println("SQLException: " + ex.getMessage());
+//            System.out.println("SQLState: " + ex.getSQLState());
+//            System.out.println("VendorError: " + ex.getErrorCode());
+//            this.releaseStatement(stmt, rs);
+//            return false;
+//        } finally {
+//            this.releaseStatement(stmt, rs);
+//        }
+//    }
 
 
     public boolean insertUsrFeedback(String usr, String grp, String sid,
@@ -656,6 +755,52 @@ public class AggregateDB extends dbInterface {
             return null;
         }
 
+    }
+    
+    
+    // Other methods to insert Groups, non students, select current/covered topics, 
+    
+    // Add a group
+    public boolean registerGroup(String grp, String grpName, String cid, String term, String year, String creatorId) {
+        String query = "";
+        try {
+            stmt = conn.createStatement();
+            query = "INSERT INTO ent_group (group_id, group_name, course_id, creation_date, term, year, creator_id) values " + 
+                    "('" + grp + "','" + grpName + "','" + cid + "',now(),'" + term + "','" + year + "','" + creatorId + "');"; 
+
+            stmt.executeUpdate(query);
+            // System.out.println(query);
+            this.releaseStatement(stmt, rs);
+            // System.out.println(query);
+            return true;
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+            releaseStatement(stmt, rs);
+            return false;
+        }
+    }
+
+    public boolean addNonStudent(String grp, String usr, String role) {
+        String query = "";
+        try {
+            stmt = conn.createStatement();
+            query = "INSERT INTO ent_non_student (group_id, user_id, user_role) values " + 
+                    "('" + grp + "','" + usr + "','" + role + "');"; 
+
+            stmt.executeUpdate(query);
+            // System.out.println(query);
+            this.releaseStatement(stmt, rs);
+            // System.out.println(query);
+            return true;
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+            releaseStatement(stmt, rs);
+            return false;
+        }
     }
     
 }

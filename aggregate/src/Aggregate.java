@@ -122,8 +122,9 @@ public class Aggregate {
 
         grp_name = agg_db.getGrpName(grp);
 
-        if (cid == null || cid.length() == 0)
+        if (cid == null || cid.length() == 0 || cid.equals("-1")){
             this.cid = agg_db.getCourseId(grp);
+        }
         else {
             this.cid = cid;            
         }
@@ -159,9 +160,6 @@ public class Aggregate {
         }
         
         processParameters(agg_db.getParameters(usr,grp));
-        
-        
-        
 
         class_list = um_interface.getClassList(grp, cm.agg_uminterface_key);
         if(class_list == null){
@@ -196,10 +194,12 @@ public class Aggregate {
         // has no pre-computed model stored in the db (first log in)
         if (updateUM) {
             computeUserLevels(usr, grp, sid, cid, domain);
-            storePrecomputedModel(usr);            
-        }else if(!agg_db.precomputedModelExist(cid, usr)) {
+            //storePrecomputedModel(usr);
+            storeComputedModel(usr);
+        }else if(!agg_db.existComputedModel(usr, cid)) {
             computeNullLevels();
-            storePrecomputedModel(usr);
+            //storePrecomputedModel(usr);
+            storeComputedModel(usr);
         }
         
         subgroups = agg_db.getSubGroups(grp);
@@ -277,7 +277,8 @@ public class Aggregate {
     
     public void computeUserLevels(){
         computeUserLevels(usr, grp, sid, cid, domain);
-        storePrecomputedModel(usr);
+        //storePrecomputedModel(usr);
+        storeComputedModel(usr);
     }
     
     
@@ -385,7 +386,9 @@ public class Aggregate {
         peers_topic_levels = new HashMap<String, Map<String, double[]>>();
         peers_content_levels = new HashMap<String, Map<String, double[]>>();
         openDBConnections();
-        HashMap<String, String[]> precomp_models = agg_db.getPrecomputedModels(cid, usr);
+        //HashMap<String, String[]> precomp_models = agg_db.getPrecomputedModels(cid, usr);
+        System.out.println("Getting all models formthe class. User: "+usr);
+        HashMap<String, String[]> precomp_models = agg_db.getComputedModels(cid, usr);
         // for(String[] learner: class_list){
         // System.out.println("total students: "+class_list.size());
         for (Iterator<String[]> i = class_list.iterator(); i.hasNext();) {
@@ -833,18 +836,24 @@ public class Aggregate {
         
         return user_levels;
     }
-
-    public void storePrecomputedModel(String user) {
+    // DEPRECATED
+//    public void storePrecomputedModel(String user) {
+//        String model4topics = this.precomputedTopicModel();
+//        String model4content = this.precomputedContentModel();
+//
+//        if (agg_db.existPrecomputedModelForSession(user, cid, grp, sid)) {
+//            agg_db.updatePrecomputedModel(user, cid, grp, sid,
+//                    model4topics, model4content);
+//        } else {
+//            agg_db.insertPrecomputedModel(user, cid, grp, sid,
+//                    model4topics, model4content);
+//        }
+//    }
+    
+    public void storeComputedModel(String user) {
         String model4topics = this.precomputedTopicModel();
         String model4content = this.precomputedContentModel();
-
-        if (agg_db.existPrecomputedModelForSession(user, cid, grp, sid)) {
-            agg_db.updatePrecomputedModel(user, cid, grp, sid,
-                    model4topics, model4content);
-        } else {
-            agg_db.insertPrecomputedModel(user, cid, grp, sid,
-                    model4topics, model4content);
-        }
+        agg_db.storeComputedModel(user, cid, grp, sid, model4topics, model4content);
     }
 
     public double getTopicDifficulty(String topic) {
@@ -862,7 +871,8 @@ public class Aggregate {
         for (String[] learner : class_list) {
             output += learner[0] + "\n";
             computeUserLevels(learner[0], grp, sid, cid, domain);
-            this.storePrecomputedModel(learner[0]);
+            //this.storePrecomputedModel(learner[0]);
+            this.storeComputedModel(learner[0]);
 
         }
         closeDBConnections();
@@ -1230,7 +1240,7 @@ public class Aggregate {
                         for (String item : contentItems) {
                             String[] content_data = this.contentList.get(item);
                             topics += "        {id:\"" + item + "\",name:\""
-                                    + content_data[1] + "\",url:\"" + content_data[2]
+                                    + content_data[1] + "\",url:\"" + content_data[2] + "&svc=masterygrids"
                                     + "\"},\n";
                         }
                         topics = topics.substring(0, topics.length() - 2); // get rid of
