@@ -1285,48 +1285,19 @@ public class Aggregate {
             double[] levels = null;
             String resourceName = "";
             seq = "";
-            if (sequencing){
-                seq = ",sequencing:{  ";
-                
-                
-                for(int i=0;i<resourceList.size();i++){
-                    resourceName = resourceList.get(i)[0];
-                    
-                    seq += "\""+resourceName+"\":"
-                            + df.format(getTopicSequenceScore(topic_name,resourceName))
-                            + " ,";
-                    
-                }
-                seq = seq.substring(0,seq.length() - 2);
-                seq += "}";
-            }
-            if (student_t_l != null)
-                levels = student_t_l.get(topic_name);
-            if (levels != null) {
-                topic_levels += "       \"" + topic_name + "\": {values:{  ";
-                for(int i=0;i<resourceList.size();i++){
-                    resourceName = resourceList.get(i)[0];
-                    topic_levels += "\""+resourceName+"\":{\"k\":" + df.format(levels[2*i]) + ",\"p\":" + df.format(levels[2*i+1]) + "},";
-                }
-                topic_levels = topic_levels.substring(0,topic_levels.length() - 1);
-                topic_levels += "}" + seq + "},\n";
-                
-            } else {
-                topic_levels += "       \"" + topic_name + "\": {values:{  ";
-                for(int i=0;i<resourceList.size();i++){
-                    resourceName = resourceList.get(i)[0];
-                    topic_levels += "\""+resourceName+"\":{\"k\":" + df.format(0) + ",\"p\":" + df.format(0) + "},";
-                }
-                topic_levels = topic_levels.substring(0,topic_levels.length() - 1);
-                topic_levels += "}" + seq + "},\n";
-            }
-
+            
+            // Prepare the JSON for reporting content levels in each topic
             content_levels += "       \"" + topic_name + "\": {  \n";
             ArrayList<String>[] content = topicContent.get(topic_name);
+            int[] nActByRes = null;
+            int totalItems = 0;
             if (content != null){
+            	nActByRes = new int[content.length]; // for storing how many content items in each resource inside the topic
                 for(int i=0;i<content.length;i++){
                     resourceName = resourceList.get(i)[0];
                     ArrayList<String> contentItems = content[i];
+                    nActByRes[i] = contentItems.size();
+                    totalItems += nActByRes[i];
                     content_levels += "        \""+resourceName+"\":{";
                     if (contentItems != null && contentItems.size() > 0) {
                         content_levels += "\n";
@@ -1365,6 +1336,53 @@ public class Aggregate {
             }
             content_levels = content_levels.substring(0,content_levels.length() - 2);
             content_levels += "\n       },\n";
+            
+           
+            // prepare the JSON for reporting the overall topic levels for each resource
+            // and add the average across resources weighting by number of content items
+            seq = "";
+            if (sequencing){
+                seq = ",sequencing:{  ";
+                for(int i=0;i<resourceList.size();i++){
+                    resourceName = resourceList.get(i)[0];
+                    
+                    seq += "\""+resourceName+"\":"
+                            + df.format(getTopicSequenceScore(topic_name,resourceName))
+                            + " ,";
+                    
+                }
+                seq = seq.substring(0,seq.length() - 2);
+                seq += "}";
+            }
+            if (student_t_l != null)
+                levels = student_t_l.get(topic_name);
+            if (levels != null) {
+                topic_levels += "       \"" + topic_name + "\": {values:{  ";
+                double overallK = 0.0;
+                double overallP = 0.0;
+                if (totalItems == 0) totalItems = 1;
+                for(int i=0;i<resourceList.size();i++){
+                    resourceName = resourceList.get(i)[0];
+                    overallK += levels[2*i]*nActByRes[i]/totalItems;
+                    overallP += levels[2*i+1]*nActByRes[i]/totalItems;
+                    topic_levels += "\""+resourceName+"\":{\"k\":" + df.format(levels[2*i]) + ",\"p\":" + df.format(levels[2*i+1]) + "},";
+                }
+                
+                topic_levels = topic_levels.substring(0,topic_levels.length() - 1);
+                topic_levels += "}" + seq + ", overall:{\"k\":" + df.format(overallK) + ",\"p\":" + df.format(overallP) + "}},\n";
+                
+            } else {
+                topic_levels += "       \"" + topic_name + "\": {values:{  ";
+                for(int i=0;i<resourceList.size();i++){
+                    resourceName = resourceList.get(i)[0];
+                    topic_levels += "\""+resourceName+"\":{\"k\":" + df.format(0) + ",\"p\":" + df.format(0) + "},";
+                }
+                topic_levels = topic_levels.substring(0,topic_levels.length() - 1);
+                
+                topic_levels += "}" + seq + ", overall:{\"k\":" + df.format(0) + ",\"p\":" + df.format(0) + "} },\n";
+            }
+
+            
         }
  
         content_levels = content_levels.substring(0,content_levels.length() - 2);
