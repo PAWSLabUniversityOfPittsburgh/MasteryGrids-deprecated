@@ -1835,26 +1835,36 @@ function visAugmentData_addAvgRes(lst) {
     for (var iTopic=0, nTopic=data.topics.length; iTopic < nTopic; iTopic++) {
       var topic = data.topics[iTopic];
       var newRes = {};
-      
-      // (1) Sum up over resources per report level:
-      for (var iRes=0, nRes=data.resources.length; iRes < nRes; iRes++) {
-        var res = data.resources[iRes];
-        if (res.id === "AVG") continue;
-        
-        for (var iRepLvl=0, nRepLvl=data.reportLevels.length; iRepLvl < nRepLvl; iRepLvl++) {
-          var repLvl = data.reportLevels[iRepLvl];
-          if (newRes[repLvl.id] == undefined) newRes[repLvl.id] = 0;
+      // if the overall value is available in the server data, use this value
+      if(elem.state.topics[topic.id].overall){
+          //alert(elem.state.topics[topic.id].overall["p"]);
+          for (var iRepLvl=0, nRepLvl=data.reportLevels.length; iRepLvl < nRepLvl; iRepLvl++) {
+              var repLvl = data.reportLevels[iRepLvl];
+              newRes[repLvl.id] = elem.state.topics[topic.id].overall[repLvl.id];   
+          }
+      }else{ // compute the overall by averaging resource level averages
+          // (1) Sum up over resources per report level:
+          for (var iRes=0, nRes=data.resources.length; iRes < nRes; iRes++) {
+            var res = data.resources[iRes];
+            if (res.id === "AVG") continue;
+            
+            for (var iRepLvl=0, nRepLvl=data.reportLevels.length; iRepLvl < nRepLvl; iRepLvl++) {
+              var repLvl = data.reportLevels[iRepLvl];
+              if (newRes[repLvl.id] == undefined) newRes[repLvl.id] = 0;
+              
+              newRes[repLvl.id] += elem.state.topics[topic.id].values[res.id][repLvl.id];
+            }
+          }
           
-          newRes[repLvl.id] += elem.state.topics[topic.id].values[res.id][repLvl.id];
-        }
+          // (2) Divide by the number of resources:
+          for (var iRepLvl=0, nRepLvl=data.reportLevels.length; iRepLvl < nRepLvl; iRepLvl++) {
+            var repLvl = data.reportLevels[iRepLvl];
+            
+            newRes[repLvl.id] /= (data.resources.length - 1);  // -1 to exclude the "Average" resource which should have already been added
+          }
+          
       }
-      
-      // (2) Divide by the number of resources:
-      for (var iRepLvl=0, nRepLvl=data.reportLevels.length; iRepLvl < nRepLvl; iRepLvl++) {
-        var repLvl = data.reportLevels[iRepLvl];
-        
-        newRes[repLvl.id] /= (data.resources.length - 1);  // -1 to exclude the "Average" resource which should have already been added
-      }
+          
       
       // (3) Associate with the topic:
       elem.state.topics[topic.id].values["AVG"] = newRes;
@@ -2842,10 +2852,10 @@ function visGenGrid(cont, gridData, settings, title, tbar, doShowYAxis, doShowXL
           var tooltip = "";
           if (d.actName != null) tooltip += d.actName + '\n';
           if ( d.valMe != -1  ) {
-              tooltip  += getRepLvl().name +' : '+ parseFloat(Math.round(d.valMe * 100)).toFixed(0)+'%';
-              if( d.valGrp != -1 )  tooltip += '\n';
+              tooltip  += getRepLvl().name +' : '+ parseFloat(Math.round(Math.min(d.valMe,1) * 100)).toFixed(0)+'%';
+              if( !isNaN(d.valGrp) && d.valGrp != -1 )  tooltip += '\n';
           }
-          if ( d.valGrp != -1 ) tooltip += 'Group ' + getRepLvl().name +' : '+ parseFloat(Math.round(d.valGrp * 100)).toFixed(0)+'%';
+          if ( !isNaN(d.valGrp) && d.valGrp != -1 ) tooltip += 'Group ' + getRepLvl().name +' : '+ parseFloat(Math.round(Math.min(d.valGrp,1) * 100)).toFixed(0)+'%';
           return tooltip; 
       });
     
