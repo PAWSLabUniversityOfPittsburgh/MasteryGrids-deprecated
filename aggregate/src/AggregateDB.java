@@ -390,11 +390,11 @@ public class AggregateDB extends dbInterface {
                 		"('" +user+ "'," +course_id+ ",now(),'" + model4topics + "','" + model4content + "');";            	
             }
             stmt = conn.createStatement();
-            System.out.println(query);
+            //System.out.println(query);
             stmt.execute(query);
             query = "INSERT INTO ent_computed_models_history (user_id,course_id,group_id,session_id,computedon,model4topics,model4content) values " + 
                 		"('"+ user+ "',"+ course_id+ ",'"+ group_id+ "','"+ sid+ "',now(),'"+ model4topics+ "','"+ model4content+ "');";
-            System.out.println(query);
+            //System.out.println(query);
             stmt.execute(query);
 
             // System.out.println(query);
@@ -447,7 +447,7 @@ public class AggregateDB extends dbInterface {
             String query = "SELECT count(*) as npm "
                     + "FROM ent_computed_models  " + "WHERE user_id='" + user
                     + "' and course_id='"+ course_id + "';";
-            System.out.println(query);
+            //System.out.println(query);
             rs = stmt.executeQuery(query);
             while (rs.next()) {
                 n = rs.getInt("npm");
@@ -507,12 +507,12 @@ public class AggregateDB extends dbInterface {
             if (usr != null && usr.length()>0) query += " and user_id = '"+usr+"'";
             query += ";";
             rs = stmt.executeQuery(query);
-            System.out.println(query);
+            //System.out.println(query);
             String user = "";
             String[] models;
             while (rs.next()) {
                 user = rs.getString("user_id");
-                System.out.println("Adding user "+user);
+                //System.out.println("Adding user "+user);
                 models = new String[2];
                 models[0] = rs.getString("model4topics");
                 models[1] = rs.getString("model4content");

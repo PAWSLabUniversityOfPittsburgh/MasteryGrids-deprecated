@@ -57,7 +57,7 @@ public class PAWSRecInterface implements RecInterface {
             if(reactiveRecMethod != null && reactiveRecMethod.length()>0) method.addParameter("reactive_method", reactiveRecMethod);
             if(proactiveRecMethod != null && proactiveRecMethod.length()>0) method.addParameter("proactive_method", proactiveRecMethod);
             method.addParameter("contents", getContents(contentList));
-            System.out.println(method.getRequestBodyAsString());  
+            //System.out.println(method.getRequestBodyAsString());  
             int statusCode = client.executeMethod(method);
 
             if (statusCode != -1) {

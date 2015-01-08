@@ -387,7 +387,7 @@ public class Aggregate {
         peers_content_levels = new HashMap<String, Map<String, double[]>>();
         openDBConnections();
         //HashMap<String, String[]> precomp_models = agg_db.getPrecomputedModels(cid, usr);
-        System.out.println("Getting all models formthe class. User: "+usr);
+        //System.out.println("Getting all models formthe class. User: "+usr);
         HashMap<String, String[]> precomp_models = agg_db.getComputedModels(cid, usr);
         // for(String[] learner: class_list){
         // System.out.println("total students: "+class_list.size());
@@ -474,10 +474,10 @@ public class Aggregate {
     }
 
     public void orderClassByProgress(){
-        orderClassByScore(false);
+        orderClassByScore(true);
     }
     public void orderClassByKnowledge(){
-        orderClassByScore(true);
+        orderClassByScore(false);
     }
     public void orderClassByScore(boolean usingProgress) {
         String learner1;
@@ -487,7 +487,7 @@ public class Aggregate {
         double learner1_sum = 0.0;
         double learner2_sum = 0.0;
         for (int i = 0; i < class_list.size() - 1; i++) {
-            for (int j = 0; j < class_list.size() - 1; j++) {
+            for (int j = 0; j < class_list.size() - 2; j++) {
                 learner1 = class_list.get(j)[0];
                 learner2 = class_list.get(j + 1)[0];
                 learner1_levels = peers_topic_levels.get(learner1);
@@ -511,6 +511,7 @@ public class Aggregate {
                     // String[] tmp = class_list.get(j);
                     // class_list.remove(j);
                     // class_list.add(tmp);
+                	//System.out.println("swap "+learner1+" / "+learner2+" : "+learner1_sum + " < " + learner2_sum);
                     Collections.swap(class_list, j, j + 1);
                 }
             }
