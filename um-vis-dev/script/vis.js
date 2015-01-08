@@ -96,6 +96,7 @@ var qs = {};  // query string parsed into key-value pairs
 var state = {
   args   : {},  // set in the loadData_cb() function
   curr   : { usr: "", grp: "", sid: "", cid: "" },
+  sequencedActs : [],
   vis : {
     act              : {
       act        : null,
@@ -764,17 +765,18 @@ function actOpen(resId, actIdx) {
       ui.vis.act.frame.style.width = CONST.vis.actWindow.w;
       ui.vis.act.frame.style.width = CONST.vis.actWindow.h;
   }
-//  if(resId === 'ae'){
-//      
-//      ui.vis.act.frame.style.width ="930px";
-//      ui.vis.act.frameRec.style.width = "930px";
-//  }
+  // show the link for help
+  var helpLink = "";
+  if(resId === 'ae'){
+      helpLink = "<a href=\"https://greengoblin.cs.hut.fi/jsvee/help/\" title=\"Animated Examples help page\" target=\"_blank\">Animated Examples Help</a>";
+  }
   
   $show(ui.vis.act.frame);
   $show(ui.vis.act.cont);
   
   ui.vis.act.title.innerHTML = "Topic: <b>" + topic.name + "</b> &nbsp; &bull; &nbsp; Activity: <b>" + act.name + "</b>";
   ui.vis.act.frame.src = act.url + "&grp=" + state.curr.grp + "&usr=" + state.curr.usr + "&sid=" + state.curr.sid + "&cid=" + state.curr.cid;
+  ui.vis.act.otherTxt.innerHTML = helpLink;
   
   log(
     "action"               + CONST.log.sep02 + "activity-open"     + CONST.log.sep01 +
@@ -1178,6 +1180,7 @@ function initUI() {
     ui.vis.act.fbDiffTxt  = $("#act-fb-diff-txt")  [0];
     ui.vis.act.fbRecCont  = $("#act-fb-rec-cont")  [0];
     ui.vis.act.fbRecTxt   = $("#act-fb-rec-txt")   [0];
+    ui.vis.act.otherTxt   = $("#act-other-link")   [0];
     
     ui.vis.act.recLst.children[0].onclick = actLoadRecOriginal;
     
@@ -1271,6 +1274,8 @@ function loadData_cb(res) {
   if (!data.vis.color.value2color) data.vis.color.value2color = function (x) { var y = Math.log(x)*0.25 + 1;  return (y < 0 ? 0 : y); };  // use the logarithm function by default
   
   visAugmentData();
+  
+  loadSequencedActs(data);
   
   data._rt = {};
   data._rt.topicsOrd = data.topics.slice(0);  // save the original topic order
@@ -1372,6 +1377,52 @@ function loadDataOthers_cb(res) {
   btn.attr("value", "Update other learners");
 }
 
+function loadSequencedActs(data){
+    var temp = "";
+    //alert("2");
+    if(typeof state.sequencedActs != "undefined" && state.sequencedActs != null){
+        // 
+        for (var iTopic=0, nTopic=data.topics.length; iTopic < nTopic; iTopic++) {
+            var topic = data.topics[iTopic];
+            if (topic.id === "AVG") continue;
+            temp = temp + topic.id + ": ";
+            for (var iRes=0, nRes=data.resources.length; iRes < nRes; iRes++) {
+              var res = data.resources[iRes];
+              if (res.id === "AVG") continue;
+              temp = temp + res.id + ":";
+              //console.log(temp);
+              for(var iAct=0, nAct=data.topics[iTopic].activities[res.id].length; iAct<nAct; iAct++){
+                  var act = data.topics[iTopic].activities[res.id][iAct];
+                  //temp = temp + act.id + ",";
+                  var s = getMe().state;
+                  var stateAct = s.activities[topic.id][res.id][act.id];
+                  
+                  if(typeof stateAct != "undefined" && stateAct != null){
+                      if(typeof stateAct.sequencing != "undefined" && stateAct.sequencing != null){
+                          if(stateAct.sequencing > 0){
+                              //temp = temp + act.id + ":" + stateAct.sequencing + ",";
+                              state.sequencedActs.push(topic.id+"/"+act.id+"/"+stateAct.sequencing);
+                          }
+                      }
+                  }
+              }
+               
+              
+            }
+            //temp = temp + "\n";
+        }
+        //alert(temp);
+        
+    }
+}
+
+function sequencedActs4Log(){
+    var r = "";
+    for(var iSeq = 0, nSeq=state.sequencedActs.length; iSeq<nSeq; iSeq++){
+        r += state.sequencedActs[iSeq] + "|";
+    }
+    return r;
+}
 
 // ------------------------------------------------------------------------------------------------------
 /**
@@ -1383,7 +1434,7 @@ function log(action, doAddCtx) {
     "grp="    + state.curr.grp + "&" +
     "sid="    + state.curr.sid + "&" +
     "cid="    + state.curr.cid + "&" +
-    "action=" + action         +
+    "action=" + action + 
       (doAddCtx
         ? CONST.log.sep01 +
           "ctx-comparison-mode-name"      + CONST.log.sep02 + (state.vis.mode === CONST.vis.mode.grp ? "grp" : "ind")            + CONST.log.sep01 +
@@ -1392,8 +1443,8 @@ function log(action, doAddCtx) {
           "ctx-group-name"                + CONST.log.sep02 + getGrp().name                                                      + CONST.log.sep01 +
           "ctx-resource-id"               + CONST.log.sep02 + (state.vis.resIdx >= 0 ? data.resources[state.vis.resIdx].id : "")
         : ""
-      );
-  
+      ) + CONST.log.sep01 +
+    "sequencedActs:" + sequencedActs4Log();
   $call("GET", uri, null, null, true, false);
 }
 
