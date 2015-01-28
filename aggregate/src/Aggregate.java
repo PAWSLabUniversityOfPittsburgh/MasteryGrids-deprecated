@@ -487,7 +487,7 @@ public class Aggregate {
         double learner1_sum = 0.0;
         double learner2_sum = 0.0;
         for (int i = 0; i < class_list.size() - 1; i++) {
-            for (int j = 0; j < class_list.size() - 2; j++) {
+            for (int j = 0; j < class_list.size() - 1; j++) {
                 learner1 = class_list.get(j)[0];
                 learner2 = class_list.get(j + 1)[0];
                 learner1_levels = peers_topic_levels.get(learner1);
