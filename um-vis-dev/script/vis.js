@@ -3357,7 +3357,7 @@ function ehVisGridBoxClick(e, grpOutter) {
   var act           = (actIdx === -1 ? null : topic.activities[res.id][actIdx]);
   
   // @@@@ click on cell
-  alert("["+gridName+"]"+"["+row+"]");
+  //alert("["+gridName+"]"+"["+row+"]");
  
   // (1) Activities list mode:
   if (state.args.uiGridActLstMode) {
