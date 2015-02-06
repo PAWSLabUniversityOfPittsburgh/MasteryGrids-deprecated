@@ -1087,11 +1087,17 @@ function initUI() {
     }
  
     $("#tbar-mode").buttonset();
+    // Group mode button
     $("#tbar-mode-01").click(function () {
+        state.args.uiTBarModeGrpChk = true;
+        //alert("Grp click");
         comparisonVisible(CONST.comparison.grpActive, CONST.comparison.meGrpActive, CONST.comparison.othersActive);
         //compModeSet(CONST.vis.mode.grp); 
     });
+    // Individual mode button
     $("#tbar-mode-02").click(function () { 
+        state.args.uiTBarModeGrpChk = false;
+        //alert("indiv click");
         comparisonVisible(false, false, false);
         //compModeSet(CONST.vis.mode.ind); 
     });
@@ -1437,7 +1443,8 @@ function log(action, doAddCtx) {
     "action=" + action + 
       (doAddCtx
         ? CONST.log.sep01 +
-          "ctx-comparison-mode-name"      + CONST.log.sep02 + (state.vis.mode === CONST.vis.mode.grp ? "grp" : "ind")            + CONST.log.sep01 +
+          //"ctx-comparison-mode-name"      + CONST.log.sep02 + (state.vis.mode === CONST.vis.mode.grp ? "grp" : "ind")            + CONST.log.sep01 +
+          "ctx-comparison-mode-name"      + CONST.log.sep02 + (state.args.uiTBarModeGrpChk ? "grp" : "ind")            + CONST.log.sep01 +
           "ctx-report-level-id"           + CONST.log.sep02 + getRepLvl().id                                                     + CONST.log.sep01 +
           "ctx-topic-size-attribute-name" + CONST.log.sep02 + state.vis.topicSize.attr                                           + CONST.log.sep01 +
           "ctx-group-name"                + CONST.log.sep02 + getGrp().name                                                      + CONST.log.sep01 +
