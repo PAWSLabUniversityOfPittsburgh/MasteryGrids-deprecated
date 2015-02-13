@@ -3375,21 +3375,21 @@ function ehVisGridBoxClick(e, grpOutter) {
   var usrState;
   var grpState;
   
+  usrState = "usrTopicState"+ CONST.log.sep02;
+  grpState = "grpTopicState"+ CONST.log.sep02;
   
+  // JULIO: @@@@@ 
+  for (var i = 0; i < data.reportLevels.length; i++){
+      usrState += data.reportLevels[i].id + "=" + getMe().state.topics[topic.id].values[res.id][data.reportLevels[i].id]  + (i < data.reportLevels.length-1 ? "|" : "");
+      grpState += data.reportLevels[i].id + "=" + getGrp().state.topics[topic.id].values[res.id][data.reportLevels[i].id] + (i < data.reportLevels.length-1 ? "|" : "");
+  }
+  
+  //alert("["+usrState+"]"+"["+grpState+"]");
  
   // (1) Activities list mode:
   if (state.args.uiGridActLstMode) {
     // (1.1) Topics grid:
     if ((gridName === "me" || gridName === "mevsgrp" || gridName === "grp")) {
-      usrState = "";
-      grpState = "";
-      // JULIO: @@@@@ 
-      for (var i = 0; i < data.reportLevels.length; i++){
-          usrState += data.reportLevels[i].id + "=" + getMe().state.topics[topic.id].values[res.id][data.reportLevels[i].id]  + "|";
-          grpState += data.reportLevels[i].id + "=" + getGrp().state.topics[topic.id].values[res.id][data.reportLevels[i].id] + "|";
-      } 
-      //alert("["+usrState+"]"+"["+grpState+"]");
-      
       if (topicIdx === state.vis.topicIdx && state.vis.grid.name === gridName) return;  // the already-selected topic has been clicked (and on the same grid at that)
       
       state.vis.grid.cellIdxSel = cellIdx;
@@ -3397,14 +3397,19 @@ function ehVisGridBoxClick(e, grpOutter) {
       state.vis.topicIdx        = topicIdx;
       state.vis.grid.name       = gridName;
       
+      //alert("["+usrState+"]"+"["+grpState+"]");
+      
       if (state.vis.topicIdx === 0) return actLstHide();  // the average topic has been clicked or the already-selected topic has been clicked
       log(
               "action"          + CONST.log.sep02 + "grid-topic-cell-select"     + CONST.log.sep01 +
               "cell-topic-id"   + CONST.log.sep02 + getTopic().id       + CONST.log.sep01 +
               "grid-name"       + CONST.log.sep02 + gridName       + CONST.log.sep01 +
               "row"             + CONST.log.sep02 + row + CONST.log.sep01 +
-              "resource-id"     + CONST.log.sep02 + state.vis.act.resId + CONST.log.sep01 +
-              "sequencing"      + CONST.log.sep02 + grpInner.data()[0].seq,
+              //"resource-id"     + CONST.log.sep02 + state.vis.act.resId + CONST.log.sep01 +
+              "resource-id"     + CONST.log.sep02 + res.id + CONST.log.sep01 +
+              "sequencing"      + CONST.log.sep02 + grpInner.data()[0].seq +
+                                  CONST.log.sep01 + usrState + CONST.log.sep01 + grpState,
+              
               true
            );
       //State.vis.resIdx is 0 when OVERALL is selected
@@ -3424,6 +3429,18 @@ function ehVisGridBoxClick(e, grpOutter) {
     // (1.2) Activities grid:
     else {
       if (actIdx === -1) return;  // the average activity cell has been clicked
+      
+      
+      
+      usrState += CONST.log.sep01 + "usrActState" + CONST.log.sep02;
+      grpState += CONST.log.sep01 + "grpActState" + CONST.log.sep02;
+      //alert("["+act.id+"]");
+      for (var i = 0; i < data.reportLevels.length; i++){
+          usrState += data.reportLevels[i].id + "=" + getMe().state.activities[topic.id][res.id][act.id].values[data.reportLevels[i].id]  + (i < data.reportLevels.length-1 ? "|" : "");
+          grpState += data.reportLevels[i].id + "=" + getGrp().state.activities[topic.id][res.id][act.id].values[data.reportLevels[i].id] + (i < data.reportLevels.length-1 ? "|" : "");
+      }
+      
+      //alert("["+usrState+"]"+"["+grpState+"]");
       
       // (1.2.1) Deselect the currently selected cell:
       if (state.vis.grid.cellSel !== null) {
@@ -3461,7 +3478,8 @@ function ehVisGridBoxClick(e, grpOutter) {
         "cell-topic-id"    + CONST.log.sep02 + topic.id                    + CONST.log.sep01 +
         "cell-resource-id" + CONST.log.sep02 + res.id                      + CONST.log.sep01 +
         "cell-activity-id" + CONST.log.sep02 + act.id                      + CONST.log.sep01 + 
-        "sequencing"       + CONST.log.sep02 + grpInner.data()[0].seq,
+        "sequencing"       + CONST.log.sep02 + grpInner.data()[0].seq +
+                             CONST.log.sep01 + usrState + CONST.log.sep01 + grpState,
         true
       );
       
