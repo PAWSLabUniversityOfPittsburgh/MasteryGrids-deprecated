@@ -16,7 +16,7 @@
  *       Click on average cell shows all activities overlay [done]
  *     Do not show cells for topics with no activities [todo]
  *     On questions grid (i.e., resource-focus mode)
- *       Show overlays as a grid with the color scheme of the row clicked (me, me vs grp, grp) [done]
+ *       Show overlays as a grid with the color scheme of the row clicked (me, mevsgrp, grp) [done]
  *     Overlay itself
  *       Same grid as the topic one but smaller cells if possible (names of activites on the top) [done]
  *     TODO
@@ -618,14 +618,14 @@ function actLstShow(doMe, doVs, doGrp) {
     switch (state.vis.mode) {
       // (1.1.1) Group comparison mode:
       case CONST.vis.mode.grp:
-        if (doMe)  visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act:me",        me,           null,     [],          $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.me[data.vis.color.binCount - 1]);                                                    }, data.resources), true,  false), CONST.vis.gridAbsAct, title, null,                       false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barAbsMini, resNames, true,  false, false, false);
-        if (doVs)  visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act:me vs grp", me,           grp,      [],          $map(function (x) { return CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1]); }, data.resources), false, false), CONST.vis.gridDevAct, title, null,                       false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, false, false);
-        if (doGrp) visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act:grp",       grp,          null,     [],          $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.grp[data.vis.color.binCount - 1]);                                                   }, data.resources), false, false), CONST.vis.gridAbsAct, title, null,                       false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barAbsMini, resNames, true,  false, false, false);
+        if (doMe)  visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act_me",        me,           null,     [],          $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.me[data.vis.color.binCount - 1]);                                                    }, data.resources), true,  false), CONST.vis.gridAbsAct, title, null,                       false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barAbsMini, resNames, true,  false, false, false);
+        if (doVs)  visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act_mevsgrp", me,           grp,      [],          $map(function (x) { return CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1]); }, data.resources), false, false), CONST.vis.gridDevAct, title, null,                       false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, false, false);
+        if (doGrp) visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act_grp",       grp,          null,     [],          $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.grp[data.vis.color.binCount - 1]);                                                   }, data.resources), false, false), CONST.vis.gridAbsAct, title, null,                       false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barAbsMini, resNames, true,  false, false, false);
         break;
       
       // (1.1.1) Individual comparison mode:
       case CONST.vis.mode.ind:
-        visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act:me",        me,           null,     ["Me"],      $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.indiv[data.vis.color.binCount - 1]);                                                   }, data.resources), true,  false ), CONST.vis.gridAbsAct, title, null,                       false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barAbsMini, resNames, true,  false, false, false);
+        visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act_me",        me,           null,     ["Me"],      $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.indiv[data.vis.color.binCount - 1]);                                                   }, data.resources), true,  false ), CONST.vis.gridAbsAct, title, null,                       false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barAbsMini, resNames, true,  false, false, false);
         break;
     }
   }  
@@ -648,27 +648,27 @@ function actLstShow(doMe, doVs, doGrp) {
             CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1])
           ];
           if(state.args.uiGridMeGrpVis || state.args.uiGridGrpVis) {
-              if (doMe)    visGenGrid(ui.vis.actLst.cont, visGenGridDataOneRes_act(null,     "act:me",          me,           null,     seriesNames,  colorScales,                                                                                                                                                               true,  false), CONST.vis.gridDevAct, title, null,  false, true,   0, state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, true , false);
-              if (doVs)    visGenGrid(ui.vis.actLst.cont, visGenGridDataOneRes_act(null,     "act:me vs grp",   me,           grp,      seriesNames,  colorScales,                                                                                                                                                               true,  false), CONST.vis.gridDevAct, title, null,  false, true,   0, state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, true , false);
-              if (doGrp)   visGenGrid(ui.vis.actLst.cont, visGenGridDataOneRes_act(null,     "act:grp",         grp,          null,     seriesNames,  $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.grp[data.vis.color.binCount - 1]);                                                      }, data.resources), true,  false), CONST.vis.gridAbsAct, title, null,  false, true,   0, state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, true , false);              
+              if (doMe)    visGenGrid(ui.vis.actLst.cont, visGenGridDataOneRes_act(null,     "act_me",          me,           null,     seriesNames,  colorScales,                                                                                                                                                               true,  false), CONST.vis.gridDevAct, title, null,  false, true,   0, state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, true , false);
+              if (doVs)    visGenGrid(ui.vis.actLst.cont, visGenGridDataOneRes_act(null,     "act_mevsgrp",   me,           grp,      seriesNames,  colorScales,                                                                                                                                                               true,  false), CONST.vis.gridDevAct, title, null,  false, true,   0, state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, true , false);
+              if (doGrp)   visGenGrid(ui.vis.actLst.cont, visGenGridDataOneRes_act(null,     "act_grp",         grp,          null,     seriesNames,  $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.grp[data.vis.color.binCount - 1]);                                                      }, data.resources), true,  false), CONST.vis.gridAbsAct, title, null,  false, true,   0, state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, true , false);              
           }else{
-                           visGenGrid(ui.vis.actLst.cont, visGenGridDataOneRes_act(null,     "act:me",          me,           null,     seriesNames,  colorScales,                                                                                                                                                               true,  false), CONST.vis.gridDevAct, title, null,  false, true,   0, state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, true , false);
+                           visGenGrid(ui.vis.actLst.cont, visGenGridDataOneRes_act(null,     "act_me",          me,           null,     seriesNames,  colorScales,                                                                                                                                                               true,  false), CONST.vis.gridDevAct, title, null,  false, true,   0, state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, true , false);
           }
         }
         // AVG resource-focus:
         else{
             // @@@@ 
             if(state.args.uiGridMeGrpVis || state.args.uiGridGrpVis) {
-//                visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act:me vs grp", me,           null,      [],          $map(function (x) { return CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1]); }, data.resources), true, false), CONST.vis.gridDevAct, title, null,                       false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, false, false);
-                if (doMe)  visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act:me",          me ,          null,      [],          $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.me[data.vis.color.binCount - 1]);                                                       }, data.resources), true,  false), CONST.vis.gridAbsAct, title, null,  false, false,  0, state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, false, false);
-                if (doVs)  visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act:me vs grp",   me ,          grp ,      [],          $map(function (x) { return CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1]); }, data.resources), false, false), CONST.vis.gridDevAct, title, null,  false, false,  0, state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, false, false);
-                if (doGrp) visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act:grp",         grp,          null,      [],          $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.grp[data.vis.color.binCount - 1]);                                                      }, data.resources), false, false), CONST.vis.gridAbsAct, title, null,  false, false,  0, state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, false, false);
+//                visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act_mevsgrp", me,           null,      [],          $map(function (x) { return CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1]); }, data.resources), true, false), CONST.vis.gridDevAct, title, null,                       false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, false, false);
+                if (doMe)  visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act_me",          me ,          null,      [],          $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.me[data.vis.color.binCount - 1]);                                                       }, data.resources), true,  false), CONST.vis.gridAbsAct, title, null,  false, false,  0, state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, false, false);
+                if (doVs)  visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act_mevsgrp",   me ,          grp ,      [],          $map(function (x) { return CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1]); }, data.resources), false, false), CONST.vis.gridDevAct, title, null,  false, false,  0, state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, false, false);
+                if (doGrp) visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act_grp",         grp,          null,      [],          $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.grp[data.vis.color.binCount - 1]);                                                      }, data.resources), false, false), CONST.vis.gridAbsAct, title, null,  false, false,  0, state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, false, false);
 
             }
                 
             else{
                 
-                           visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act:me",          me,           null,      [],          $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.me[data.vis.color.binCount - 1]);                                                       }, data.resources), true,  false), CONST.vis.gridAbsAct, title, null,  false, false,  0, state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, false, false);
+                           visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act_me",          me,           null,      [],          $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.me[data.vis.color.binCount - 1]);                                                       }, data.resources), true,  false), CONST.vis.gridAbsAct, title, null,  false, false,  0, state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, false, false);
             }                
         }
         break;
@@ -677,11 +677,11 @@ function actLstShow(doMe, doVs, doGrp) {
       case CONST.vis.mode.ind:
         // Non-AVG resource-focus (e.g., questions, examples, etc.):
         if (res.id !== "AVG") {
-                           visGenGrid(ui.vis.actLst.cont, visGenGridDataOneRes_act(null,     "act:me",          me,           null,     ["Me"],       $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.indiv[data.vis.color.binCount - 1]);                                                    }, data.resources), true,  false ), CONST.vis.gridAbsAct, title, null, false, true,   0, state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, true , false);
+                           visGenGrid(ui.vis.actLst.cont, visGenGridDataOneRes_act(null,     "act_me",          me,           null,     ["Me"],       $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.indiv[data.vis.color.binCount - 1]);                                                    }, data.resources), true,  false ), CONST.vis.gridAbsAct, title, null, false, true,   0, state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barDevMini, resNames, true,  false, true , false);
         }
         
         // AVG resource-focus:
-        else               visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act:me",          me,           null,     ["Me"],       $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.indiv[data.vis.color.binCount - 1]);                                                    }, data.resources), true,  false ), CONST.vis.gridAbsAct, title, null, false, false,  0, state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barAbsMini, resNames, true,  false, false, false);
+        else               visGenGrid(ui.vis.actLst.cont, visGenGridDataAllRes_act(null,     "act_me",          me,           null,     ["Me"],       $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.indiv[data.vis.color.binCount - 1]);                                                    }, data.resources), true,  false ), CONST.vis.gridAbsAct, title, null, false, false,  0, state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 0, true,  /*BarChart*/null, CONST.vis.barAbsMini, resNames, true,  false, false, false);
         
         break;
     }
@@ -1087,11 +1087,17 @@ function initUI() {
     }
  
     $("#tbar-mode").buttonset();
+    // Group mode button
     $("#tbar-mode-01").click(function () {
+        state.args.uiTBarModeGrpChk = true;
+        //alert("Grp click");
         comparisonVisible(CONST.comparison.grpActive, CONST.comparison.meGrpActive, CONST.comparison.othersActive);
         //compModeSet(CONST.vis.mode.grp); 
     });
+    // Individual mode button
     $("#tbar-mode-02").click(function () { 
+        state.args.uiTBarModeGrpChk = false;
+        //alert("indiv click");
         comparisonVisible(false, false, false);
         //compModeSet(CONST.vis.mode.ind); 
     });
@@ -1152,8 +1158,8 @@ function initUI() {
 //    };
     
     //$("#grids")[0].onclick = function (e) {
-    	//if (state.args.uiGridActLstMode) actLstHide();
-	//};
+        //if (state.args.uiGridActLstMode) actLstHide();
+    //};
 
     
     // (1.5) Sunburst visualization:
@@ -1437,11 +1443,12 @@ function log(action, doAddCtx) {
     "action=" + action + 
       (doAddCtx
         ? CONST.log.sep01 +
-          "ctx-comparison-mode-name"      + CONST.log.sep02 + (state.vis.mode === CONST.vis.mode.grp ? "grp" : "ind")            + CONST.log.sep01 +
+          //"ctx-comparison-mode-name"      + CONST.log.sep02 + (state.vis.mode === CONST.vis.mode.grp ? "grp" : "ind")            + CONST.log.sep01 +
+          "ctx-comparison-mode-name"      + CONST.log.sep02 + (state.args.uiTBarModeGrpChk ? "grp" : "ind")            + CONST.log.sep01 +
           "ctx-report-level-id"           + CONST.log.sep02 + getRepLvl().id                                                     + CONST.log.sep01 +
           "ctx-topic-size-attribute-name" + CONST.log.sep02 + state.vis.topicSize.attr                                           + CONST.log.sep01 +
           "ctx-group-name"                + CONST.log.sep02 + getGrp().name                                                      + CONST.log.sep01 +
-          "ctx-resource-id"               + CONST.log.sep02 + (state.vis.resIdx >= 0 ? data.resources[state.vis.resIdx].id : "")
+          "ctx-resource-id"               + CONST.log.sep02 + (state.vis.resIdx >= 0 ? data.resources[state.vis.resIdx].id : "ALL")
         : ""
       ) + CONST.log.sep01 +
     "sequencedActs:" + sequencedActs4Log();
@@ -2060,6 +2067,13 @@ function visDo(doMe, doGrp, doOthers) {
   // (2.3) Visualize:
   var fnVisGenGridData = null;
   
+//  var othersTitle;
+//  if($_("tbar-grp").selectedIndex > 0){
+//      othersTitle = getGrp().name;
+//  }else{
+//      othersTitle = "whole class";
+//  }
+  
   // (2.3.1) All resources:
   if (state.vis.resIdx < 0) {
     fnVisGenGridData = (state.args.uiGridActLstMode || topic === null ? visGenGridDataAllRes : visGenGridDataAllRes_act);
@@ -2075,11 +2089,11 @@ function visDo(doMe, doGrp, doOthers) {
         
         if ((doMe || doGrp) && state.args.uiGridMeGrpVis) {
           var title = (state.args.uiGridAllHeadMeGrpVis ? "Me versus group" : null);
-          visGenGrid      (ui.vis.grid.cont.me,     fnVisGenGridData(null,     "me vs grp", me,           grp,      [],          $map(function (x) { return CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1]); }, data.resources), false, true ), CONST.vis.gridDev, title, null,                         false, false,                       0,                           state.vis.grid.cornerRadius, topicMaxW,         state.vis.grid.xLblAngle, 30, true,  BarChart, CONST.vis.barDevMini, resNames, true,  false,                                                          false, true , "all-res-mevsgrp" );
+          visGenGrid      (ui.vis.grid.cont.me,     fnVisGenGridData(null,     "mevsgrp", me,           grp,      [],          $map(function (x) { return CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1]); }, data.resources), false, true ), CONST.vis.gridDev, title, null,                         false, false,                       0,                           state.vis.grid.cornerRadius, topicMaxW,         state.vis.grid.xLblAngle, 30, true,  BarChart, CONST.vis.barDevMini, resNames, true,  false,                                                          false, true , "all-res-mevsgrp" );
         }
         
         if (doGrp && state.args.uiGridGrpVis) {
-          var title = (state.args.uiGridAllHeadGrpVis ? "Group" : null);
+          var title = (state.args.uiGridAllHeadGrpVis ? "Group ("+othersTitle+")" : null);
           visGenGrid      (ui.vis.grid.cont.grp,    fnVisGenGridData(null,     "grp",       grp,          null,     [],          $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.grp[data.vis.color.binCount - 1]);                                                   }, data.resources), false, true ), CONST.vis.gridAbs, title, null,                         false, false,                       0,                           state.vis.grid.cornerRadius, topicMaxW,         state.vis.grid.xLblAngle, 30, true,  BarChart, CONST.vis.barAbsMini, resNames, true,  false,                                                          false, true, "all-res-grp" );
         }
         
@@ -2153,7 +2167,7 @@ function visDo(doMe, doGrp, doOthers) {
   
   // (2.3.2) One resource:
   else {
-	// @@@@ 
+    // @@@@ 
     fnVisGenGridData = (state.args.uiGridActLstMode || topic === null ? visGenGridDataOneRes : (res.id === "AVG" ? visGenGridDataAllRes_act : visGenGridDataOneRes_act));
     
     var res   = data.resources[state.vis.resIdx];  // the currenly selected resource
@@ -2161,22 +2175,31 @@ function visDo(doMe, doGrp, doOthers) {
     
     var topicNames = (topic === null ? $map(function (x) { return x.name; }, data.topics) : [topic.name].concat($map(function (x) { return x.name; }, act)));
     
+   
+    
     switch (state.vis.mode) {
       // (2.3.2.1) Group comparison mode:
       case CONST.vis.mode.grp:
+ 
         // (a) My progress, deviation from group, and group:
         if ((doMe || doGrp) && state.args.uiGridMeVis) {
+            
           // Topics and activites in a non-AVG resource-focus:
           if (topic === null || (topic !== null && res.id !== "AVG") || (state.args.uiGridActLstMode)) {
-           
-            var title = (state.args.uiGridOneHeadMeVis ? (state.args.uiGridGrpVis ? "Me and group" : "My Progress") + (topic === null || state.args.uiGridActLstMode ? "" : " &nbsp; <span class=\"info\">(TOPIC: " + topic.name + ")</span>") : null);
+             
+            var title = (state.args.uiGridOneHeadMeVis ? (state.args.uiGridGrpVis ? "Me and group ("+othersTitle+")" : "My Progress") + (topic === null || state.args.uiGridActLstMode ? "" : " &nbsp; <span class=\"info\">(TOPIC: " + topic.name + ")</span>") : null);
             var seriesNames = ["Me", "Me vs group", "Group"];
+
             var colorScales = [
               CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1]),
               CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1]),
               CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1])
             ];
-            visGenGrid    (ui.vis.grid.cont.me,     fnVisGenGridData(null,     "me vs grp", me,          grp,       seriesNames, colorScales,                                                                                                                                                         true,  true ), CONST.vis.gridDev, title, tbarMe,                       false, true,                        0,                           state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 30, true,  BarChart, CONST.vis.barDevMini, resNames, true,  (topic === null || state.args.uiGridActLstMode ? true : false), true,  true , "one-res" );
+            if(state.args.uiGridGrpVis){
+                visGenGrid    (ui.vis.grid.cont.me,     fnVisGenGridData(null,     "mevsgrp", me,          grp,       seriesNames, colorScales,                                                                                                                                                         true,  true ), CONST.vis.gridDev, title, tbarMe,                       false, true,                        0,                           state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 30, true,  BarChart, CONST.vis.barDevMini, resNames, true,  (topic === null || state.args.uiGridActLstMode ? true : false), true,  true , "one-res" );
+            }else{
+                visGenGrid    (ui.vis.grid.cont.me,     fnVisGenGridData(null,     "me",        me,          grp,       seriesNames, colorScales,                                                                                                                                                         true,  true ), CONST.vis.gridDev, title, tbarMe,                       false, true,                        0,                           state.vis.grid.cornerRadius, topicMaxW, state.vis.grid.xLblAngle, 30, true,  BarChart, CONST.vis.barDevMini, resNames, true,  (topic === null || state.args.uiGridActLstMode ? true : false), true,  true , "one-res" );
+            }
           }
           
           // Activites in the AVG resource-focus:
@@ -2190,12 +2213,12 @@ function visDo(doMe, doGrp, doOthers) {
             if ((doMe || doGrp) && state.args.uiGridMeGrpVis) {
                 
               var title = (state.args.uiGridAllHeadMeGrpVis ? "Me versus group" : null);
-              visGenGrid  (ui.vis.grid.cont.me,     fnVisGenGridData(null,     "me vs grp", me,           grp,      [],          $map(function (x) { return CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1]); }, data.resources), false, true ), CONST.vis.gridDev, title, null,                         false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 30, true,  BarChart, CONST.vis.barDevMini, resNames, true,  true,                                                           false, true, null );
+              visGenGrid  (ui.vis.grid.cont.me,     fnVisGenGridData(null,     "mevsgrp", me,           grp,      [],          $map(function (x) { return CONST.vis.colors.grpRev[data.vis.color.binCount - 1].concat(["#eeeeee"], CONST.vis.colors.me[data.vis.color.binCount - 1]); }, data.resources), false, true ), CONST.vis.gridDev, title, null,                         false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 30, true,  BarChart, CONST.vis.barDevMini, resNames, true,  true,                                                           false, true, null );
             }
             
             if (doGrp && state.args.uiGridGrpVis) {
               
-              var title = (state.args.uiGridAllHeadGrpVis ? "Group" : null);
+              var title = (state.args.uiGridAllHeadGrpVis ? "Group ("+othersTitle+")" : null);
               visGenGrid  (ui.vis.grid.cont.grp,    fnVisGenGridData(null,     "grp",       grp,          null,     [],          $map(function (x) { return ["#eeeeee"].concat(CONST.vis.colors.grp[data.vis.color.binCount - 1]);                                                   }, data.resources), false, true ), CONST.vis.gridAbs, title, null,                         false, false,                       0,                           state.vis.grid.cornerRadius, 0,         state.vis.grid.xLblAngle, 30, true,  BarChart, CONST.vis.barAbsMini, resNames, true,  true,                                                           false, true, null );
             }
           }
@@ -2365,12 +2388,12 @@ function visGenGridDataOneRes(gridData, gridName, learner01, learner02, seriesNa
     var t = data.topics[j];
     // if the resource is the average (overall) with index 0, then fill sequencing as the aggregation of the sequencing of individual resources
     if (state.vis.resIdx == 0 && learner01.state.topics[t.id].sequencing !== undefined){
-    	var seq = 0;
-    	
-    	for (var iRes=1, nRes=data.resources.length; iRes < nRes; iRes++) {
-    	    if (learner01.state.topics[t.id].sequencing[data.resources[iRes].id] > seq) seq=learner01.state.topics[t.id].sequencing[data.resources[iRes].id];
+        var seq = 0;
+        
+        for (var iRes=1, nRes=data.resources.length; iRes < nRes; iRes++) {
+            if (learner01.state.topics[t.id].sequencing[data.resources[iRes].id] > seq) seq=learner01.state.topics[t.id].sequencing[data.resources[iRes].id];
         }
-    	learner01.state.topics[t.id].sequencing[r.id] = seq;
+        learner01.state.topics[t.id].sequencing[r.id] = seq;
     }
 
     s.data.push({
@@ -3219,7 +3242,7 @@ function ehVisGridBoxMouseOver(e, grpOutter, gridData, miniSvg, miniSeries) {
   
   // Show the activities list for the cell being moused-over if LMB is held down:
   if (state.args.uiGridActLstMode && state.isMouseBtn1) {
-    if ((gridName === "me" || gridName === "me vs grp" || gridName === "grp")) {
+    if ((gridName === "me" || gridName === "mevsgrp" || gridName === "grp")) {
       if (topicIdx === state.vis.topicIdx && state.vis.grid.name === gridName) return;  // the already-selected topic has been clicked (and on the same grid at that)
       
       state.vis.grid.cellIdxSel = cellIdx;
@@ -3229,7 +3252,7 @@ function ehVisGridBoxMouseOver(e, grpOutter, gridData, miniSvg, miniSeries) {
       
       if (state.vis.topicIdx === 0) return actLstHide();  // the average topic has been clicked or the already-selected topic has been clicked
       
-      return actLstShow(gridName === "me", gridName === "me vs grp", gridName === "grp");
+      return actLstShow(gridName === "me", gridName === "mevsgrp", gridName === "grp");
     }
   }else{
       //return actLstHide(); 
@@ -3257,7 +3280,7 @@ function ehVisGridBoxMouseOut(e, grpOutter, miniSvg) {
   
   // (1) Activities list mode:
   if (state.args.uiGridActLstMode) {
-    if ((gridName === "act:me" || gridName === "act:me vs grp" || gridName === "act:grp") && state.vis.grid.cellIdxSel === cellIdx) {  // this if-else is reversed from the one in part (2)
+    if ((gridName === "act_me" || gridName === "act_mevsgrp" || gridName === "act_grp") && state.vis.grid.cellIdxSel === cellIdx) {  // this if-else is reversed from the one in part (2)
       grpInner.
         transition().delay(0).duration(100).ease("easeInOutQuart").
         attrTween("transform", function (d,i,a) {
@@ -3347,11 +3370,26 @@ function ehVisGridBoxClick(e, grpOutter) {
   var res           = data.resources[resIdx];
   var act           = (actIdx === -1 ? null : topic.activities[res.id][actIdx]);
   
+  // @@@@ click on cell
+  //alert("["+gridName+"]"+"["+row+"]");
+  var usrState;
+  var grpState;
+  
+  usrState = "usrTopicState"+ CONST.log.sep02;
+  grpState = "grpTopicState"+ CONST.log.sep02;
+  
+  // JULIO: @@@@@ 
+  for (var i = 0; i < data.reportLevels.length; i++){
+      usrState += data.reportLevels[i].id + "=" + getMe().state.topics[topic.id].values[res.id][data.reportLevels[i].id]  + (i < data.reportLevels.length-1 ? "|" : "");
+      grpState += data.reportLevels[i].id + "=" + getGrp().state.topics[topic.id].values[res.id][data.reportLevels[i].id] + (i < data.reportLevels.length-1 ? "|" : "");
+  }
+  
+  //alert("["+usrState+"]"+"["+grpState+"]");
  
   // (1) Activities list mode:
   if (state.args.uiGridActLstMode) {
     // (1.1) Topics grid:
-    if ((gridName === "me" || gridName === "me vs grp" || gridName === "grp")) {
+    if ((gridName === "me" || gridName === "mevsgrp" || gridName === "grp")) {
       if (topicIdx === state.vis.topicIdx && state.vis.grid.name === gridName) return;  // the already-selected topic has been clicked (and on the same grid at that)
       
       state.vis.grid.cellIdxSel = cellIdx;
@@ -3359,13 +3397,19 @@ function ehVisGridBoxClick(e, grpOutter) {
       state.vis.topicIdx        = topicIdx;
       state.vis.grid.name       = gridName;
       
+      //alert("["+usrState+"]"+"["+grpState+"]");
+      
       if (state.vis.topicIdx === 0) return actLstHide();  // the average topic has been clicked or the already-selected topic has been clicked
       log(
-              "action"               + CONST.log.sep02 + "grid-topic-cell-select"     + CONST.log.sep01 +
-              "cell-topic-id"    + CONST.log.sep02 + getTopic().id       + CONST.log.sep01 +
-              "grid-name"    + CONST.log.sep02 + gridName       + CONST.log.sep01 +
-              "resource-id" + CONST.log.sep02 + state.vis.act.resId + CONST.log.sep01 +
-              "sequencing" + CONST.log.sep02 + grpInner.data()[0].seq,
+              "action"          + CONST.log.sep02 + "grid-topic-cell-select"     + CONST.log.sep01 +
+              "cell-topic-id"   + CONST.log.sep02 + getTopic().id       + CONST.log.sep01 +
+              "grid-name"       + CONST.log.sep02 + gridName       + CONST.log.sep01 +
+              "row"             + CONST.log.sep02 + row + CONST.log.sep01 +
+              //"resource-id"     + CONST.log.sep02 + state.vis.act.resId + CONST.log.sep01 +
+              "resource-id"     + CONST.log.sep02 + res.id + CONST.log.sep01 +
+              "sequencing"      + CONST.log.sep02 + grpInner.data()[0].seq +
+                                  CONST.log.sep01 + usrState + CONST.log.sep01 + grpState,
+              
               true
            );
       //State.vis.resIdx is 0 when OVERALL is selected
@@ -3375,7 +3419,7 @@ function ehVisGridBoxClick(e, grpOutter) {
           if(row == 2) return actLstShow(false,false,true);
       }else{
           if(state.args.uiGridMeGrpVis || state.args.uiGridGrpVis)
-              return actLstShow(gridName === "me", gridName === "me vs grp", gridName === "grp");
+              return actLstShow(gridName === "me", gridName === "mevsgrp", gridName === "grp");
           else 
               return actLstShow(true, false, false);
       }
@@ -3385,6 +3429,18 @@ function ehVisGridBoxClick(e, grpOutter) {
     // (1.2) Activities grid:
     else {
       if (actIdx === -1) return;  // the average activity cell has been clicked
+      
+      
+      
+      usrState += CONST.log.sep01 + "usrActState" + CONST.log.sep02;
+      grpState += CONST.log.sep01 + "grpActState" + CONST.log.sep02;
+      //alert("["+act.id+"]");
+      for (var i = 0; i < data.reportLevels.length; i++){
+          usrState += data.reportLevels[i].id + "=" + getMe().state.activities[topic.id][res.id][act.id].values[data.reportLevels[i].id]  + (i < data.reportLevels.length-1 ? "|" : "");
+          grpState += data.reportLevels[i].id + "=" + getGrp().state.activities[topic.id][res.id][act.id].values[data.reportLevels[i].id] + (i < data.reportLevels.length-1 ? "|" : "");
+      }
+      
+      //alert("["+usrState+"]"+"["+grpState+"]");
       
       // (1.2.1) Deselect the currently selected cell:
       if (state.vis.grid.cellSel !== null) {
@@ -3418,10 +3474,12 @@ function ehVisGridBoxClick(e, grpOutter) {
       log(
         "action"           + CONST.log.sep02 + "grid-activity-cell-select" + CONST.log.sep01 +
         "grid-name"        + CONST.log.sep02 + gridName                    + CONST.log.sep01 +
+        "row"              + CONST.log.sep02 + row                         + CONST.log.sep01 +
         "cell-topic-id"    + CONST.log.sep02 + topic.id                    + CONST.log.sep01 +
         "cell-resource-id" + CONST.log.sep02 + res.id                      + CONST.log.sep01 +
         "cell-activity-id" + CONST.log.sep02 + act.id                      + CONST.log.sep01 + 
-        "sequencing"       + CONST.log.sep02 + grpInner.data()[0].seq,
+        "sequencing"       + CONST.log.sep02 + grpInner.data()[0].seq +
+                             CONST.log.sep01 + usrState + CONST.log.sep01 + grpState,
         true
       );
       
@@ -3770,16 +3828,16 @@ function generateHelp(origin){
         helpText = "<h3 style='margin: 0px; padding: 0px 10px 0px 0px;'>My Progress Grid</h3><p>This row represents your progress in the topics of the course. Each topic is a cell. Gray means 0% of progress and darker color means more progress.</p>";
         helpText += "<table border=0 cellpadding=0 cellspacing=0>";
         helpText += "<tr>" +
-        		"<td style='padding:2px 5px 2px 0px;'>0%</td>" +
-        		"<td style='background-color:rgb(238, 238, 238); padding:2px 5px 2px 5px;'>&nbsp;</td>" +
-        		"<td style='background-color:#edf8e9; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
-        		"<td style='background-color:#c7e9c0; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
-        		"<td style='background-color:#a1d99b; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
-        		"<td style='background-color:#74c476; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
-        		"<td style='background-color:#31a354; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
-        		"<td style='background-color:#006d2c; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
-        		"<td style='padding:2px 0px 2px 5px;'>100%</td>" +
-        		"</tr>";
+                "<td style='padding:2px 5px 2px 0px;'>0%</td>" +
+                "<td style='background-color:rgb(238, 238, 238); padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#edf8e9; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#c7e9c0; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#a1d99b; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#74c476; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#31a354; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='background-color:#006d2c; padding:2px 5px 2px 5px;'>&nbsp;</td>" +
+                "<td style='padding:2px 0px 2px 5px;'>100%</td>" +
+                "</tr>";
         helpText += "</table>";
         //"#edf8e9","#c7e9c0","#a1d99b","#74c476","#31a354","#006d2c"
     }
@@ -3822,7 +3880,7 @@ function generateHelp(origin){
     }
     if(origin === "all-res-me-h"){
         helpText = "<h3 style='margin: 0px; padding: 0px 10px 0px 0px;'>My Progress Grid</h3><p style='margin-top: 2px;'>This grid represents your progress in the topics. Each topic is a column. " +
-        		   "First row shows <b>average</b> across different types of content. Other rows shows progress within specific types of content (quizzes, examples). Gray means 0% of progress and darker color means more progress.</p>";
+                   "First row shows <b>average</b> across different types of content. Other rows shows progress within specific types of content (quizzes, examples). Gray means 0% of progress and darker color means more progress.</p>";
         helpText += "<table border=0 cellpadding=0 cellspacing=0>";
         helpText += "<tr>" +
                 "<td style='padding:2px 5px 2px 0px;'>0%</td>" +
@@ -3839,7 +3897,7 @@ function generateHelp(origin){
     }
     if(origin === "all-res-mevsgrp-h"){
         helpText = "<h3 style='margin: 0px; padding: 0px 10px 0px 0px;'>Comparison Grid</h3><p style='margin-top: 2px;margin-bottom:5px;'>" +
-        		"This grid shows the <i>difference</i> between your progress (<span style='color: #006d2c;font-weight:bold;'>GREEN</span>) and other students progress (<span style='color: #08519c;font-weight:bold;'>BLUE</span>). The cell are colored depending on this difference: if you see a green cell, it means you are more advance than the average of other students in the corresponding topic.</p>";        
+                "This grid shows the <i>difference</i> between your progress (<span style='color: #006d2c;font-weight:bold;'>GREEN</span>) and other students progress (<span style='color: #08519c;font-weight:bold;'>BLUE</span>). The cell are colored depending on this difference: if you see a green cell, it means you are more advance than the average of other students in the corresponding topic.</p>";        
         helpText += "<table border=0 cellpadding=0 cellspacing=0>";
         helpText += "<tr>" +
                 "<td style='padding:2px 5px 2px 0px;font-size: 10px;'>group +</td>" +
