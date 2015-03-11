@@ -24,7 +24,7 @@
   
   <script type="text/javascript" src="script/$.js"></script>
   <script type="text/javascript" src="script/vis/BarChart.js"></script>
-  <script type="text/javascript" src="script/vis.js"></script>
+  <script type="text/javascript" src="script/vis.js?v=101"></script>
 </head>
 
 
@@ -39,6 +39,12 @@
 <div id="act-lst"></div>
 <img id="act-lst-arrow" src="img/ui-tabs-arrow.png" />
 
+<!-- Help Dialog -->
+<div id="help-dlg">
+	<div id="help-dlg-title"></div>
+	<div id="help-dlg-cont"></div>
+</div>
+
 
 <!-- Sunburst -->
 <div id="sunburst"></div>
@@ -49,12 +55,21 @@
   <span id="tbar-mode-cont">
     <span>Comparison</span>
     <span id="tbar-mode">
-      <input type="radio" id="tbar-mode-01" name="tbar-mode" checked="checked" /><label for="tbar-mode-01">Group</label>
-      <input type="radio" id="tbar-mode-02" name="tbar-mode"                   /><label for="tbar-mode-02">Individual</label>
+      <input type="radio" id="tbar-mode-02" name="tbar-mode" checked="checked" /><label for="tbar-mode-02">Individual</label>
+      <input type="radio" id="tbar-mode-01" name="tbar-mode" /><label for="tbar-mode-01">Group</label>
     </span>
     
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   </span>
+  
+  <!--span id="tbar-comparison-cont">
+    <span>Comparison: </span>
+    <span id="tbar-mode">
+      <input type="checkbox" id="tbar-comparison" name="tbar-comparison" /><label for="tbar-comparison">Show Group</label>
+    </span>
+    
+    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+  </span-->
   
   <span id="tbar-rep-lvl-cont">
     <span>Report level</span>
@@ -96,7 +111,7 @@
       <option value="18">18</option>
       <option value="19">19</option>
       <option value="20">20</option>
-    </select>px
+    </select><span id="tbar-grp-cell-h-unit">px</span>
     
     &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
   </span>
@@ -109,6 +124,10 @@
     </select>
   </span>
 </div>
+
+<!--div id="color-legend">
+
+</div-->
 
 
 <div id="grids">
@@ -161,8 +180,9 @@
       </div>
     </td>
   </tr>
-  </tr>
+  <tr>
     <td id="act-td-btns">
+      <span id="act-other-link"></span>
       <input type="button" id="act-close" value="Close window" />
     </td>
   </tr>

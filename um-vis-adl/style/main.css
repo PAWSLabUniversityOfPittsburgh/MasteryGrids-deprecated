@@ -104,9 +104,17 @@ svg g.grid rect.box:hover  {  }
 
 svg g.timeline line            { stroke: #222222; stroke-width: 1; }
 
-svg g.timeline circle          { fill: #fa0004; stroke: #610002; }
-svg g.timeline circle.covered  { fill: #00cc1b; stroke: #003807; }
-svg g.timeline circle.current  { fill: #00cc1b; stroke: #000000; }
+/* svg g.timeline circle          { fill: #fa0004; stroke: #610002; } */
+/* svg g.timeline circle.covered  { fill: #00cc1b; stroke: #003807; } */
+/* svg g.timeline circle.current  { fill: #00cc1b; stroke: #000000; } */
+
+svg g.timeline circle          { fill: #eeeeee; stroke: #222222; }
+/*svg g.timeline circle.covered  { fill: #00aa1b; stroke: #222222; } */
+/*svg g.timeline circle.current  { fill: #dd401b; stroke: #000000; } */
+
+svg g.timeline circle.covered  { fill: #333333; stroke: #222222; }
+svg g.timeline circle.current  { fill: #fe9929; stroke: #000000; }
+
 
 svg g.timeline path            { stroke-width: 1px; }
 svg g.timeline path.current    { fill: #00cc1b; stroke: #000000; }
@@ -118,9 +126,11 @@ svg g.timeline text.current    { fill: #000000; font-weight: bold; }
 
 
 /* Activities list */
-#act-lst        { display: none; position: absolute; padding: 8px 0px 0px 8px; border: 1px solid #888888/*#faa200*/; background-color: #ffffff; -webkit-box-shadow: 0px 0px 4px #444444; -moz-box-shadow: 0px 0px 4px #444444; box-shadow: 0px 0px 4px #444444; /*-moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;*/ z-index: 100; }
+#act-lst        { display: none; position: absolute; padding: 16px 0px 0px 8px; border: 1px solid #888888/*#faa200*/; background-color: #ffffff; -webkit-box-shadow: 0px 0px 4px #444444; -moz-box-shadow: 0px 0px 4px #444444; box-shadow: 0px 0px 4px #444444; /*-moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;*/ z-index: 100; }
 #act-lst-arrow  { display: none; position: absolute; z-index: 101; }
 
+/* Help Overlay Window */
+#help-dlg        { display: none; position: absolute; padding: 16px 0px 0px 8px; border: 1px solid #888888/*#faa200*/; background-color: #ffffff; -webkit-box-shadow: 0px 0px 4px #444444; -moz-box-shadow: 0px 0px 4px #444444; box-shadow: 0px 0px 4px #444444; /*-moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px;*/ z-index: 100; }
 
 
 /* Sunburst */
@@ -150,15 +160,15 @@ iframe.act  { width: 100%; height: 80%; border: 0px; margin: 0px; padding: 0px; 
 
 
 /* Activity window */
-#act                         { display: none; position: fixed; top: 0px; right: 0px; bottom: 0px; left: 0px; padding-top: 40px; text-align: center; background-color: rgba(0,0,0,0.35); z-index: 160; }
+#act                         { display: none; position: fixed; top: 0px; right: 0px; bottom: 0px; left: 0px; padding-top: 20px; text-align: center; background-color: rgba(0,0,0,0.35); z-index: 160; }
 #act-tbl                     { background-color: #eeeeee; border: 1px solid #444444; -webkit-box-shadow: 0px 0px 8px #222222; -moz-box-shadow: 0px 0px 8px #222222; box-shadow: 0px 0px 8px #222222; -moz-border-radius: 5px; -webkit-border-radius: 5px; border-radius: 5px; }
 #act-title                   { padding: 4px 12px 4px 12px; text-align: left; font-size: 12px; }
 #act-fb-diff-cont            { display: none; background-color: #ffe1a8; border-top: 1px solid #aaaaaa; text-align: right; padding: 4px 17px 4px 0px; }
 #act-fb-diff-txt             { margin-right: 10px; font-weight: bold; }
 #act-fb-rec-cont             { display: none; background-color: #ffe1a8; border-top: 1px solid #aaaaaa; text-align: right; padding: 4px 17px 4px 0px; }
 #act-fb-rec-txt              { margin-right: 10px; font-weight: bold; }
-#act-frame                   { width: 800px; height: 460px; margin: 0px; padding: 0px; background-color: #ffffff; border: 0px; border-left: 4px solid #faa200; }
-#act-frame-rec               { display: none; width: 800px; height: 460px; margin: 0px; padding: 0px; background-color: #ffffff; border: 0px; border-left: 4px solid #faa200; }
+#act-frame                   { width: 800px; height: 420px; margin: 0px; padding: 0px; background-color: #ffffff; border: 0px; border-left: 4px solid #faa200; }
+#act-frame-rec               { display: none; width: 800px; height: 420px; margin: 0px; padding: 0px; background-color: #ffffff; border: 0px; border-left: 4px solid #faa200; }
 #act-td-frame                { background-color: #eeeeee; border-top: 1px solid #666666; border-bottom: 1px solid #666666; padding: 0px; }
 #act-td-btns                 { border-top: 1px solid #aaaaaa; text-align: right; padding: 4px 20px 6px 0px; }
 #act-close                   { margin-left: 40px; }
@@ -173,7 +183,7 @@ iframe.act  { width: 100%; height: 80%; border: 0px; margin: 0px; padding: 0px; 
 #act span.ui-buttonset label:hover                  {                                                    border: 1px solid #666666; }
 #act span.ui-buttonset label.ui-state-active        { background-color: #faa200; background-image: none; border: 1px solid #b87700; }
 #act span.ui-buttonset label.ui-state-active:hover  {                                                    border: 1px solid #a86d00; }
-
+#act-other-link { width: 500px; position: relative; left:0px;}
 
 /* JQuery UI customization */
 .ui-widget                                                                  { font-family: 'Open Sans',Calibri,Tahoma,sans-serif; font-size: 11px; }
@@ -191,3 +201,6 @@ a:focus  { outline: none; }
 
 #nav-tabs .inner  { padding: 0px; }
 #nav-tabs .inner .ui-widget-header  { background-color: #dddddd; }
+
+.small-btn {padding: 1px 3px 1px 3px !important; font-size:9px;}
+#btn-act-lst-close {float: right; top: -13px; margin-right: 3px;}
