@@ -40,6 +40,7 @@ public class Aggregate {
     public HashMap<String, String[]> contentList; // each content has: resource name (string id), display name, url, description, comment, provider_id (string id)
     public HashMap<String, String> mapContentTopic; // maps content id and topic id (the first topic containing the content)
     public ArrayList<String[]> resourceList; // resource name , resource display name (ex: qz , question)
+    public HashMap<String,String[]> providers;
     public HashMap<String, Integer> resourceMap; // store resource name and position in the resourceList
     public HashMap<String, ArrayList<String>[]> topicContent; // topic name , one arraylist for each resource (type) in the order of resorceList 
     public int nTopicLevels; // NResource X 2: 2 levels (K,P) for each resource type
@@ -190,6 +191,10 @@ public class Aggregate {
         mapContentToTopic();
         // System.out.println("topic content");
 
+        // providers info
+        providers = agg_db.getProvidersInfo();
+        
+        
         // This part computed the user model if updateUM = true or if the user
         // has no pre-computed model stored in the db (first log in)
         if (updateUM) {
@@ -290,10 +295,18 @@ public class Aggregate {
         userTopicLevels = new HashMap<String, double[]>();
         userContentLevels = new HashMap<String, double[]>();
         
+        
+        
         // fill the hash map with the knowledge and progress computations from UM interface
         // contentSummary, each double[]: knowledge, progress, attempts/loads, success rate, completion, other 1, other 2
         long time1 = Calendar.getInstance().getTimeInMillis();
-        userContentLevels = um_interface.getContentSummary(usr, grp, sid, cid, domain, contentList, null);
+        userContentLevels = um_interface.getContentSummary(usr, grp, sid, cid, domain, contentList, providers, null);
+        
+        // @@@@ testing the new interface
+//        PAWSUMInterfaceV2 um_interfaceV2 = new PAWSUMInterfaceV2();
+//        um_interfaceV2.getContentSummary(usr, grp, sid, cid, domain, contentList, providers, null);
+        
+        
 //        for (Map.Entry<String, double[]> content : userContentLevels.entrySet()) {
 //            String content_name = content.getKey();
 //            double[] levels = content.getValue(); // @@@@

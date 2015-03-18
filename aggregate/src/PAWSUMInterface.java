@@ -14,8 +14,10 @@ import java.net.URLEncoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
+
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.DocumentBuilder;
+
 import org.w3c.dom.Document;
 import org.w3c.dom.NodeList;
 import org.w3c.dom.Node;
@@ -108,7 +110,7 @@ public class PAWSUMInterface implements UMInterface {
      * @ return each double[]: knowledge, progress, attempts/loads, success rate, completion, other 1, other 2
      */
     public HashMap<String, double[]> getContentSummary(String usr, String grp, String sid, String cid, String domain, 
-            HashMap<String, String[]> contentList, ArrayList<String> options) {
+            HashMap<String, String[]> contentList, HashMap<String,String[]> providers, ArrayList<String> options) {
 
         //HashMap<String,String> contentWithProvider = generateContentList(contentByProvider);
         contentSummary = new HashMap<String, double[]>(); 

@@ -66,7 +66,7 @@ public interface UMInterface {
      */
     public HashMap<String, double[]> getContentSummary(
             String usr, String grp, String sid, String cid, String domain,
-            HashMap<String, String[]> contentList,
+            HashMap<String, String[]> contentList, HashMap<String,String[]> providers,
             ArrayList<String> options);
 
 

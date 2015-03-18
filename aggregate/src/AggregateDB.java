@@ -803,4 +803,29 @@ public class AggregateDB extends dbInterface {
         }
     }
     
+    public HashMap<String,String[]> getProvidersInfo(){
+    	try {
+    		HashMap<String,String[]> res = new HashMap<String,String[]>();
+            stmt = conn.createStatement();
+            String query = "SELECT provider_id, um_svc_url, activity_svc_url FROM ent_provider;";
+            rs = stmt.executeQuery(query);
+            while (rs.next()) {
+                String id = rs.getString("provider_id");
+            	String[] urls = new String[4];
+          
+                urls[0] = rs.getString("um_svc_url");
+                urls[1] = rs.getString("activity_svc_url");
+                res.put(id,urls);
+            }
+            this.releaseStatement(stmt, rs);
+            return res;
+        } catch (SQLException ex) {
+            System.out.println("SQLException: " + ex.getMessage());
+            System.out.println("SQLState: " + ex.getSQLState());
+            System.out.println("VendorError: " + ex.getErrorCode());
+            this.releaseStatement(stmt, rs);
+            return null;
+        }
+    }
+    
 }
