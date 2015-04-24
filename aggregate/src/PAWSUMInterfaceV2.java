@@ -128,50 +128,57 @@ public class PAWSUMInterfaceV2 implements UMInterface {
             else contentByProvider.put(content_provider,contentByProvider.get(content_provider)+","+"\""+content_name+"\"");   
     	}
 
-
+    	//System.out.println("GETTING THE KNOWLEDGE");
     	// 2. GENERATE CALLS FOR GET KNOWLEDGE LEVELS
     	for(Map.Entry<String, String> calls : umSvcURLs.entrySet()){
+    		
+    		
     		String svcURL = calls.getKey();
     		
-    		String json = "{\n    \"user-id\" : \""+usr+"\",\n    \"group-id\" : \""+grp+"\",\n    \"domain\" : \""+domain+"\",\n    \"content-list-by-provider\" : [  \n";
-    		for(Map.Entry<String,String[]> provider : providers.entrySet()){
-    			if(provider.getValue()[0].equals(svcURL) && contentByProvider.get(provider.getKey()) != null){
-    				json += "        {\"provider-id\" : \""+provider.getKey()+"\", \"content-list\" : ["+contentByProvider.get(provider.getKey())+"]},\n";
-    			}
-    		}
-    		json = json.substring(0,json.length()-2);
-    		json += "\n    ]\n}";
-
-    		// Make a call to svcURL and process data adding content to contentSummary if content does not exist already, or complete the corresponding element 
-    		// @@@
-
-    		//System.out.println("Input: ");
-    		//System.out.println(json);
+    		//System.out.println(svcURL);
     		
-    		JSONObject jsonResponse = callService(svcURL, json);
-    		System.out.println("");
-    		//System.out.println("");
-    		System.out.println("");
-    		System.out.println("Output: ");
-    		System.out.println(jsonResponse.toString());
-    		JSONArray jsonContentArray = jsonResponse.getJSONArray("content-list");
-    		for(int i=0; i<jsonContentArray.length(); i++){
-    			
-    			JSONObject c = jsonContentArray.getJSONObject(i);
-    			String contentId = c.getString("content-id");
-    			double k = c.getDouble("knowledge");
-    			System.out.println(contentId + " : " + k);
-    			
-    			double[] values = contentSummary.get(contentId);
-    			
-    			if(values == null){
-    				values = new double[LEVELS];
-    				contentSummary.put(contentId,values);
-    			}
-    			
-    			values[0] = k;
-    			
+    		if(!svcURL.equalsIgnoreCase("none") && !svcURL.equalsIgnoreCase("unknown") && !svcURL.equalsIgnoreCase("NA")){
+        		String json = "{\n    \"user-id\" : \""+usr+"\",\n    \"group-id\" : \""+grp+"\",\n    \"domain\" : \""+domain+"\",\n    \"content-list-by-provider\" : [  \n";
+        		for(Map.Entry<String,String[]> provider : providers.entrySet()){
+        			if(provider.getValue()[0].equals(svcURL) && contentByProvider.get(provider.getKey()) != null){
+        				json += "        {\"provider-id\" : \""+provider.getKey()+"\", \"content-list\" : ["+contentByProvider.get(provider.getKey())+"]},\n";
+        			}
+        		}
+        		json = json.substring(0,json.length()-2);
+        		json += "\n    ]\n}";
+
+        		// Make a call to svcURL and process data adding content to contentSummary if content does not exist already, or complete the corresponding element 
+        		// @@@
+
+        		//System.out.println("Input: ");
+        		//System.out.println(json);
+        		
+        		JSONObject jsonResponse = callService(svcURL, json);
+//        		System.out.println("");
+//        		//System.out.println("");
+//        		System.out.println("");
+//        		System.out.println("Output: ");
+//        		System.out.println(jsonResponse.toString());
+        		JSONArray jsonContentArray = jsonResponse.getJSONArray("content-list");
+        		for(int i=0; i<jsonContentArray.length(); i++){
+        			
+        			JSONObject c = jsonContentArray.getJSONObject(i);
+        			String contentId = c.getString("content-id");
+        			double k = c.getDouble("knowledge");
+        			//System.out.println(contentId + " : " + k);
+        			
+        			double[] values = contentSummary.get(contentId);
+        			
+        			if(values == null){
+        				values = new double[LEVELS];
+        				contentSummary.put(contentId,values);
+        			}
+        			
+        			values[0] = k;
+        			
+        		}    			
     		}
+
     	}
     	// 3. GENERATE CALLS FOR GET ACTIVITY LEVELS
     	
@@ -194,11 +201,11 @@ public class PAWSUMInterfaceV2 implements UMInterface {
     		//System.out.println(json);
     		
     		JSONObject jsonResponse = callService(svcURL, json);
-    		System.out.println("");
-    		//System.out.println("");
-    		System.out.println("");
-    		System.out.println("Output: ");
-    		System.out.println(jsonResponse.toString());
+//    		System.out.println("");
+//    		//System.out.println("");
+//    		System.out.println("");
+//    		System.out.println("Output: ");
+//    		System.out.println(jsonResponse.toString());
     		JSONArray jsonContentArray = jsonResponse.getJSONArray("content-list");
     		for(int i=0; i<jsonContentArray.length(); i++){
     			
@@ -219,7 +226,7 @@ public class PAWSUMInterfaceV2 implements UMInterface {
     			try{ time = c.getDouble("time-spent");}catch(Exception e){};
     			try{ subs = c.getDouble("sub-activities");}catch(Exception e){};
     			
-    			System.out.println(contentId + " : " + progress);
+    			//System.out.println(contentId + " : " + progress);
     			
     			double[] values = contentSummary.get(contentId);
     			
