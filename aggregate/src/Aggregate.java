@@ -1082,7 +1082,6 @@ public class Aggregate {
     
     // each String[] in the arraylist contains a set of 2 parameters string (comma separated):
     // vis paameters and services parameters
-    
     public void processParameters (ArrayList<String[]> parameters){
     	if(parameters == null) return;
     	for(String[] p : parameters){
@@ -1305,7 +1304,7 @@ public class Aggregate {
             ArrayList<String>[] content = topicContent.get(topic_name);
             int[] nActByRes = null;
             int totalItems = 0;
-            if (content != null){
+            if (content != null && content.length>0){
             	nActByRes = new int[content.length]; // for storing how many content items in each resource inside the topic
                 for(int i=0;i<content.length;i++){
                     resourceName = resourceList.get(i)[0];
@@ -1347,6 +1346,8 @@ public class Aggregate {
                     
                 }
             	
+            }else{
+            	nActByRes = new int[resourceList.size()]; 
             }
             content_levels = content_levels.substring(0,content_levels.length() - 2);
             content_levels += "\n       },\n";
