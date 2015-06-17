@@ -40,7 +40,7 @@ public class GetContentLevels extends HttpServlet {
             HttpServletResponse response) throws ServletException, IOException {
         response.setContentType("application/json");
         response.setHeader("Access-Control-Allow-Origin", "*");
-        response.setHeader("Access-Control-Allow-Origin", "http://localhost:8888");
+        //response.setHeader("Access-Control-Allow-Origin", "http://localhost");
         time0 = Calendar.getInstance().getTimeInMillis();
         ConfigManager cm = new ConfigManager(this);
         verbose = cm.agg_verbose.equalsIgnoreCase("yes");
