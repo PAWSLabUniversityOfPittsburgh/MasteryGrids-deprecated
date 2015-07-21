@@ -198,7 +198,7 @@ public class PAWSUMInterfaceV2 implements UMInterface {
     		// @@@
 
     		//System.out.println("Input: ");
-    		//System.out.println(json);
+    		//System.out.println("CALLING: "+ svcURL + "\n" + json);
     		
     		JSONObject jsonResponse = callService(svcURL, json);
 //    		System.out.println("");
