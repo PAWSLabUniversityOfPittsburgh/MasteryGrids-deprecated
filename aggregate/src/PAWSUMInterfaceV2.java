@@ -198,7 +198,7 @@ public class PAWSUMInterfaceV2 implements UMInterface {
     		// @@@
 
     		//System.out.println("Input: ");
-    		//System.out.println("CALLING: "+ svcURL + "\n" + json);
+    		System.out.println("CALLING: "+ svcURL + "\n" + json);
     		
     		JSONObject jsonResponse = callService(svcURL, json);
 //    		System.out.println("");
@@ -261,7 +261,7 @@ public class PAWSUMInterfaceV2 implements UMInterface {
             PostMethod method = new PostMethod(url);
             method.setRequestBody(json);
             method.addRequestHeader("Content-type", "application/json");
-            System.out.println("Calling service "+url);
+            //System.out.println("Calling service "+url);
             int statusCode = client.executeMethod(method);
 
             if (statusCode != -1) {
