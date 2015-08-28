@@ -18,7 +18,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 public class PAWSRecInterface implements RecInterface {
-
+	private boolean verbose = false;
 	//TODO later change the server to adapt2
 	private String server = "http://adapt2.sis.pitt.edu";
 	//private String server = "http://localhost:8080";
@@ -57,7 +57,9 @@ public class PAWSRecInterface implements RecInterface {
             if(reactiveRecMethod != null && reactiveRecMethod.length()>0) method.addParameter("reactive_method", reactiveRecMethod);
             if(proactiveRecMethod != null && proactiveRecMethod.length()>0) method.addParameter("proactive_method", proactiveRecMethod);
             method.addParameter("contents", getContents(contentList));
-            //System.out.println(method.getRequestBodyAsString());  
+            if (verbose) System.out.println("RECOMENDATION CALL:");
+            if (verbose) System.out.println(method.getURI().toString()+"\n"+method.getRequestBodyAsString());  
+            
             int statusCode = client.executeMethod(method);
 
             if (statusCode != -1) {

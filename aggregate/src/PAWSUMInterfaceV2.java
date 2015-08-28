@@ -76,10 +76,11 @@ public class PAWSUMInterfaceV2 implements UMInterface {
 
                 for (int i = 0; i < learners.length(); i++) {
                     JSONObject jsonobj = learners.getJSONObject(i);
-                    String[] learner = new String[3];
+                    String[] learner = new String[4];
                     learner[0] = jsonobj.getString("learnerId");
                     learner[1] = jsonobj.getString("name");
                     learner[2] = jsonobj.getString("email");
+                    learner[3] = i+"";
                     classList.add(learner);
                     // System.out.println(jsonobj.getString("name"));
                 }

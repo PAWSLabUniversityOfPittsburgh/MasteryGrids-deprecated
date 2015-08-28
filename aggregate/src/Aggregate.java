@@ -67,6 +67,7 @@ public class Aggregate {
     public ArrayList<Map<String, double[]>> subgroups_topic_levels; 
     public ArrayList<Map<String, double[]>> subgroups_content_levels; 
     public ArrayList<ArrayList<String>> subgroups_student_ids;
+    public ArrayList<ArrayList<String>> subgroups_student_anonym_ids;
     public ArrayList<String> subgroups_names;
     
 //    public Map<String, double[]> aggs1_topic_levels;
@@ -557,17 +558,25 @@ public class Aggregate {
     	subgroups_topic_levels = new ArrayList<Map<String, double[]>>();
     	subgroups_content_levels = new ArrayList<Map<String, double[]>>();
     	subgroups_student_ids = new ArrayList<ArrayList<String>>();
+    	subgroups_student_anonym_ids = new ArrayList<ArrayList<String>>();
     	subgroups_names = new ArrayList<String>();
     	// first subgroup is class average
     	if(includeClassAverage){
     		ArrayList<String> allPeers = new ArrayList<String>();
+    		ArrayList<String> allPeersAnonym = new ArrayList<String>();
     		for(int i=0;i<class_list.size();i++){
     			if (non_students.get(class_list.get(i)[0]) == null){
+    				//
     				allPeers.add(class_list.get(i)[0]);
+    				if(class_list.get(i)[0].equalsIgnoreCase(usr)) allPeersAnonym.add(class_list.get(i)[3]);
+    				else allPeersAnonym.add(class_list.get(i)[0]);
+    					
+    				//else allPeers.add(class_list.get(i)[3]);
     			}
     		}
     		
     		subgroups_student_ids.add(allPeers);
+    		subgroups_student_anonym_ids.add(allPeersAnonym);
     		subgroups_names.add("Class Average");
     		subgroups_topic_levels.add(computeSubGroupTopicLevels(allPeers));
     		subgroups_content_levels.add(computeSubGroupContentLevels(allPeers));
@@ -578,17 +587,23 @@ public class Aggregate {
     		if(nTop<1) nTop = 1;
     		if(nTop>class_list.size()) nTop = class_list.size();
     		ArrayList<String> topPeers = new ArrayList<String>();
+    		ArrayList<String> topPeersAnonym = new ArrayList<String>();
+
     		int i = 0;
     		for(int j=0;j<class_list.size() && i<nTop;j++){
     			String learner_id = class_list.get(j)[0];
+    			String learnerAnonymId = class_list.get(j)[3];
     			if (non_students.get(learner_id) == null){
     				topPeers.add(learner_id);
+    				if(learner_id.equalsIgnoreCase(usr)) topPeersAnonym.add(learner_id);
+    				else topPeersAnonym.add(learnerAnonymId);
     				i++;
     			}
     			
     		}
     		
     		subgroups_student_ids.add(topPeers);
+    		subgroups_student_anonym_ids.add(topPeersAnonym);
     		subgroups_names.add("Top "+nTop);
     		subgroups_topic_levels.add(computeSubGroupTopicLevels(topPeers));
     		subgroups_content_levels.add(computeSubGroupContentLevels(topPeers));
@@ -600,17 +615,31 @@ public class Aggregate {
     			String subgroupName = subgroup[0];
     			String[] peers = subgroup[1].split(",");
     			ArrayList<String> sub_peers = new  ArrayList<String>();
+    			ArrayList<String> sub_peers_anonym = new  ArrayList<String>();
     			for(String peer : peers){
     				sub_peers.add(peer);
+    				if(!peer.equalsIgnoreCase(usr)) sub_peers_anonym.add(getAnonymIdByUser(peer));	
+    				else sub_peers_anonym.add(peer);
+    				
     			}
     			if(sub_peers.size()>0){
         			subgroups_student_ids.add(sub_peers);
+            		subgroups_student_anonym_ids.add(sub_peers_anonym);
             		subgroups_names.add(subgroupName);
             		subgroups_topic_levels.add(computeSubGroupTopicLevels(sub_peers));
             		subgroups_content_levels.add(computeSubGroupContentLevels(sub_peers));
     			}    			
     		}
     	}
+    }
+    
+    public String getAnonymIdByUser(String userId){
+    	String res =  null;
+    	for(String[] user : class_list){
+    		if(user[0].equalsIgnoreCase(userId)) return user[3];
+    	}
+    	
+    	return res;
     }
 
     public HashMap<String, double[]> computeSubGroupTopicLevels(ArrayList<String> learners){
@@ -1567,7 +1596,7 @@ public class Aggregate {
             String ishidden = "false";
             if (non_students.get(learner[0]) != null) ishidden = "true";
             if(c<n-1 || learner[0].equalsIgnoreCase(usr) || n == -1){
-                learners += "{\n  id:\"" + learner[0] + "\",name:\"" + learner[1]
+                learners += "{\n  id:\"" + (learner[0].equalsIgnoreCase(usr)?learner[0]:learner[3]) + "\",name:\"" + learner[1]
                         + "\",isHidden:" + ishidden + ",\n  "
                         + genJSONLearnerState(learner[0]) + "\n},\n";                
             }
@@ -1580,7 +1609,7 @@ public class Aggregate {
         for(int g=0;g<subgroups_names.size();g++){
             String subgroup = "{\n  name:\""+subgroups_names.get(g)+"\",\n";
 
-            subgroup += genJSONGroupState(subgroups_topic_levels.get(g), subgroups_content_levels.get(g), subgroups_student_ids.get(g)) + "\n},\n";
+            subgroup += genJSONGroupState(subgroups_topic_levels.get(g), subgroups_content_levels.get(g), subgroups_student_anonym_ids.get(g)) + "\n},\n";
             aggs_levels += subgroup;
         }
         aggs_levels = aggs_levels.substring(0, aggs_levels.length() - 2);
