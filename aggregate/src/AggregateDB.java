@@ -266,7 +266,7 @@ public class AggregateDB extends dbInterface {
                     + "WHERE T.course_id = '"
                     + course_id
                     + "' "
-                    + "and T.active=1 "
+                    + "and T.active=1 and C.visible = 1 and TC.visible = 1 "
                     + "and TC.topic_id=T.topic_id and C.content_id = TC.content_id and R.resource_id = TC.resource_id "
                     + "group by T.topic_id";
             
