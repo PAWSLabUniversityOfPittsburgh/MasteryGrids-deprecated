@@ -568,8 +568,8 @@ public class Aggregate {
     			if (non_students.get(class_list.get(i)[0]) == null){
     				//
     				allPeers.add(class_list.get(i)[0]);
-    				if(class_list.get(i)[0].equalsIgnoreCase(usr)) allPeersAnonym.add(class_list.get(i)[3]);
-    				else allPeersAnonym.add(class_list.get(i)[0]);
+    				if(class_list.get(i)[0].equalsIgnoreCase(usr)) allPeersAnonym.add(class_list.get(i)[0]);
+    				else allPeersAnonym.add(class_list.get(i)[3]);
     					
     				//else allPeers.add(class_list.get(i)[3]);
     			}
