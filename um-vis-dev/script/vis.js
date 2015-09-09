@@ -2849,9 +2849,9 @@ function visGenGrid(cont, gridData, settings, title, tbar, doShowYAxis, doShowXL
         attr("helpId",helpId).
         attr("serieId",(s.id ? s.id : "")).
         attr("cursor","pointer").
-        on("click",function (e) {
+        on("click",function () {
             var origin = d3.select(this).attr("helpId") + '-' + d3.select(this).attr("serieId");
-            helpDialogShow(origin,event.pageX,event.pageY);
+            helpDialogShow(origin,d3.mouse(this)[0],d3.mouse(this)[1]+57);
         }).
         on("mouseover",function () {d3.select(this).style("opacity","1");}).
         on("mouseout",function () {d3.select(this).style("opacity","0.7");}).
