@@ -251,16 +251,20 @@ function actClose() {
   // (3) Update the activity grids:
   var res = getRes(state.vis.act.resId);
   if (res.updateStateOn && (res.updateStateOn.winClose || (res.updateStateOn.winCloseIfAct && state.vis.act.doUpdState))) {
-    vis.loadingShow();
+    //vis.loadingShow();
     
-    actUpdGrids(true, function () { vis.loadingHide(); });
+    actUpdGrids(true, function () { 
+    //    vis.loadingHide(); 
+    });
   }
   else if (state.vis.act.recIdx >= 0) {
     var res = getRes(state.vis.act.rsp.rec[state.vis.act.recIdx].resourceId);
     if (res.updateStateOn && (res.updateStateOn.winClose || (res.updateStateOn.winCloseIfAct && state.vis.act.doUpdState))) {
-      vis.loadingShow();
-      actUpdGrids(true, function () { vis.loadingHide(); });
-    }
+      //vis.loadingShow();
+      actUpdGrids(true, function () { 
+          //vis.loadingHide(); 
+      });
+    
   }
   
   // (4) Other:
@@ -446,6 +450,13 @@ function actLoadRec(idx) {
   if (act === null) return alert(CONST.msg.actLoadRec_notFound);
   
   // (3) Mange frames:
+  // @@@@ Julio: resize the recFrame accrdingto the size of the corresponding resource  
+  var res = getRes(rec.resourceId);
+  if(res.dim){
+      if(res.dim.w) ui.vis.act.frameRec.style.width = res.dim.w + "px";
+      if(res.dim.w) ui.vis.act.frameRec.style.height = res.dim.h + "px"
+  }
+  
   $hide(ui.vis.act.frame);
   $show(ui.vis.act.frameRec);
   
