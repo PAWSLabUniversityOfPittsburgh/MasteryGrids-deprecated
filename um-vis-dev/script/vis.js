@@ -251,20 +251,20 @@ function actClose() {
   // (3) Update the activity grids:
   var res = getRes(state.vis.act.resId);
   if (res.updateStateOn && (res.updateStateOn.winClose || (res.updateStateOn.winCloseIfAct && state.vis.act.doUpdState))) {
-    //vis.loadingShow();
+//    vis.loadingShow();
     
     actUpdGrids(true, function () { 
-    //    vis.loadingHide(); 
+        //vis.loadingHide(); 
     });
   }
   else if (state.vis.act.recIdx >= 0) {
     var res = getRes(state.vis.act.rsp.rec[state.vis.act.recIdx].resourceId);
     if (res.updateStateOn && (res.updateStateOn.winClose || (res.updateStateOn.winCloseIfAct && state.vis.act.doUpdState))) {
-      //vis.loadingShow();
+//      vis.loadingShow();
       actUpdGrids(true, function () { 
-          //vis.loadingHide(); 
+        //vis.loadingHide(); 
       });
-    
+    }
   }
   
   // (4) Other:
@@ -291,7 +291,7 @@ function actDone_cb(rsp) {
     "action"               + CONST.log.sep02 + "activity-done"          + CONST.log.sep01 +
     "activity-topic-id"    + CONST.log.sep02 + getTopic().id            + CONST.log.sep01 +
     "activity-resource-id" + CONST.log.sep02 + state.vis.act.resId      + CONST.log.sep01 +
-    "activity-id"          + CONST.log.sep02 + getAct().id              + CONST.log.sep01 +
+    "activity-id"          + CONST.log.sep02 + (getAct() ? getAct().id : 'undefined')   + CONST.log.sep01 +
     "activity-result"      + CONST.log.sep02 + state.vis.act.rsp.result,
     true
   );
@@ -450,12 +450,12 @@ function actLoadRec(idx) {
   if (act === null) return alert(CONST.msg.actLoadRec_notFound);
   
   // (3) Mange frames:
-  // @@@@ Julio: resize the recFrame accrdingto the size of the corresponding resource  
+  // @@@@ Julio:  
   var res = getRes(rec.resourceId);
   if(res.dim){
       if(res.dim.w) ui.vis.act.frameRec.style.width = res.dim.w + "px";
       if(res.dim.w) ui.vis.act.frameRec.style.height = res.dim.h + "px"
-  }
+  }  
   
   $hide(ui.vis.act.frame);
   $show(ui.vis.act.frameRec);
@@ -2860,9 +2860,10 @@ function visGenGrid(cont, gridData, settings, title, tbar, doShowYAxis, doShowXL
         attr("helpId",helpId).
         attr("serieId",(s.id ? s.id : "")).
         attr("cursor","pointer").
-        on("click",function () {
+        on("click",function() {
             var origin = d3.select(this).attr("helpId") + '-' + d3.select(this).attr("serieId");
             helpDialogShow(origin,d3.mouse(this)[0],d3.mouse(this)[1]+57);
+            //helpDialogShow(origin,event.clientX,event.clientY);
         }).
         on("mouseover",function () {d3.select(this).style("opacity","1");}).
         on("mouseout",function () {d3.select(this).style("opacity","0.7");}).
