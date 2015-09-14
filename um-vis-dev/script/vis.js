@@ -1272,7 +1272,7 @@ function initUI() {
 
 // ------------------------------------------------------------------------------------------------------
 function loadData() {
-  vis.loadingShow();
+  // vis.loadingShow();
   
   log("action" + CONST.log.sep02 + "data-load-start", false);
   
