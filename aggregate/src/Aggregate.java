@@ -983,9 +983,10 @@ public class Aggregate {
         ArrayList<ArrayList<String[]>> all_rec = rec_interface.getRecommendations(usr, grp, sid, cid, domain, last_content_id, last_content_res, last_content_provider, 
         		contentList, cm.agg_reactiverec_max, cm.agg_proactiverec_max, cm.agg_reactiverec_threshold, cm.agg_proactiverec_threshold,
         		cm.agg_reactiverec_method, cm.agg_proactiverec_method);
+        recommendation_list = new ArrayList<ArrayList<String>>();
         if (all_rec != null){
             // reactive recommendations
-        	recommendation_list = new ArrayList<ArrayList<String>>();
+        	//recommendation_list = new ArrayList<ArrayList<String>>();
             if(cm.agg_reactiverec_enabled){
             	ArrayList<String[]> reactive_rec = all_rec.get(0);
                 for(String[] rec : reactive_rec){
@@ -1028,6 +1029,7 @@ public class Aggregate {
                     }else{
                         seqScores = new double[topic_content.length];
                         for(int i=0;i<topic_content.length;i++){
+                        	seqScores[i] = 0.0; 
                             ArrayList<String> contents = topic_content[i];
                             for(String content_name: contents){
                                 Double s = contentSequencingScores.get(content_name);

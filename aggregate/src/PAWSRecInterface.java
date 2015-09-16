@@ -37,6 +37,7 @@ public class PAWSRecInterface implements RecInterface {
 		ArrayList<String[]> reactive_list = new ArrayList<String[]>();
     	ArrayList<String[]> proactive_list = new ArrayList<String[]>();
 		InputStream in = null;
+		JSONObject json = null;
 		// A JSON object is created to pass the required parameter to the recommendation service implemented by GetRecommendations.java
 		try {
 			HttpClient client = new HttpClient();
@@ -73,7 +74,7 @@ public class PAWSRecInterface implements RecInterface {
 //                    System.out.println(read);
 //                    read =br.readLine();
 //                }
-                JSONObject json =  readJsonFromStream(in);
+                json =  readJsonFromStream(in);
                 in.close();
                 if(json != null){
 	                if (json.has("error")) {
@@ -129,6 +130,7 @@ public class PAWSRecInterface implements RecInterface {
 
         } catch (Exception e) {
         	result = null;
+        	System.out.println("JSON RESPONSE WITH ERROR: \n\n"+json+"\n\n");
             e.printStackTrace();
             return result;
         }finally{
@@ -172,12 +174,17 @@ public class PAWSRecInterface implements RecInterface {
 	
 	public static JSONObject readJsonFromStream(InputStream is)  throws Exception{
 		JSONObject json = null;
+		BufferedReader rd;
+		String jsonText = "";
 		try {
-			BufferedReader rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
-			String jsonText = readAll(rd);
+			rd = new BufferedReader(new InputStreamReader(is, Charset.forName("UTF-8")));
+			jsonText = readAll(rd);
 			json = new JSONObject(jsonText);
+			System.out.println("\n\n\n\n\nTHIS IS THE JSON FROM GetRecommendations: \n\n"+json.toString());
 		}catch(Exception e){
+			System.out.println("JSON RESPONSE WITH ERROR: \n\n"+jsonText+"\n\n");
 			e.printStackTrace();
+			json = null;
 		}
 		return json;
 	}
