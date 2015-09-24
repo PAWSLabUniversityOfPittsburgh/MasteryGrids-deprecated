@@ -105,6 +105,7 @@ var state = {
       rsp        : { result: -1, rec: null, fb: null },  // server's response to the activity outcome
       recIdx     : -1,  // the index of the currently selected recommended activity (in the 'state.vis.act.rsp.recomm' array)
       doUpdState : false,
+      isResizing : false
     },
     grid             : {
       cellIdxMax   : 0,
@@ -449,13 +450,17 @@ function actLoadRec(idx) {
   for (var j=0, nj=topic.activities[rec.resourceId].length; j < nj; j++) { if (topic.activities[rec.resourceId][j].id === rec.activityId) act = function (j) { return topic.activities[rec.resourceId][j]; }(j); }
   if (act === null) return alert(CONST.msg.actLoadRec_notFound);
   
-  // (3) Mange frames:
+  // (3) Manage frames:
   // @@@@ Julio:  
   var res = getRes(rec.resourceId);
-  if(res.dim){
-      if(res.dim.w) ui.vis.act.frameRec.style.width = res.dim.w + "px";
-      if(res.dim.w) ui.vis.act.frameRec.style.height = res.dim.h + "px"
-  }  
+  ui.vis.act.frameRec.style.width = ui.vis.act.frame.style.width;
+  ui.vis.act.frameRec.style.height = ui.vis.act.frame.style.height;
+//  if(res.dim){
+//      //if(res.dim.w) ui.vis.act.frameRec.style.width = res.dim.w + "px";
+//      //if(res.dim.h) ui.vis.act.frameRec.style.height = res.dim.h + "px";
+//      //ui.vis.act.table.style.width = (res.dim.w) + "px";
+//      //ui.vis.act.table.style.height = (res.dim.h) + "px";
+//  }  
   
   $hide(ui.vis.act.frame);
   $show(ui.vis.act.frameRec);
@@ -536,13 +541,13 @@ function actLoadRecOriginal() {
   if (state.vis.act.recIdx === -1) return;
   
   // (1) Update the activity grids:
-  if (state.vis.act.recIdx >= 0) {
-    var res = getRes(state.vis.act.rsp.rec[state.vis.act.recIdx].resourceId);
-    if (res.updateStateOn && (res.updateStateOn.winClose || (res.updateStateOn.winCloseIfAct && state.vis.act.doUpdState))) {
-      vis.loadingShow();
-      actUpdGrids(true, function () { vis.loadingHide(); });
-    }
-  }
+//  if (state.vis.act.recIdx >= 0) {
+//    var res = getRes(state.vis.act.rsp.rec[state.vis.act.recIdx].resourceId);
+//    if (res.updateStateOn && (res.updateStateOn.winClose || (res.updateStateOn.winCloseIfAct && state.vis.act.doUpdState))) {
+//      vis.loadingShow();
+//      actUpdGrids(true, function () { vis.loadingHide(); });
+//    }
+//  }
   
   // (2) The rest:
   state.vis.act.recIdx = -1;
@@ -769,12 +774,19 @@ function actOpen(resId, actIdx) {
   // TODO
   if(res.dim){
       if(res.dim.w) ui.vis.act.frame.style.width = res.dim.w + "px";
-      if(res.dim.w) ui.vis.act.frame.style.height = res.dim.h + "px";
+      if(res.dim.h) ui.vis.act.frame.style.height = res.dim.h + "px";
+
+      ui.vis.act.table.style.width = (res.dim.w) + "px";
+      ui.vis.act.table.style.height = (res.dim.h) + "px";
+      
       //ui.vis.act.frameRec.style.width = "930px";
       //ui.vis.act.frameRec.style.width = "930px";
   }else{
       ui.vis.act.frame.style.width = CONST.vis.actWindow.w;
-      ui.vis.act.frame.style.width = CONST.vis.actWindow.h;
+      ui.vis.act.frame.style.height = CONST.vis.actWindow.h;
+      
+      ui.vis.act.table.style.width  = (CONST.vis.actWindow.w) + "px";
+      ui.vis.act.table.style.height = (CONST.vis.actWindow.h) + "px";
   }
   // show the link for help
   var helpLink = "";
@@ -1183,13 +1195,17 @@ function initUI() {
     
     // (1.7) Activity window:
     ui.vis.act.cont              = $("#act")[0];
-    ui.vis.act.cont.onclick      = actClose;
+    ui.vis.act.cont.onclick      = function(e) {
+        if(state.vis.act.isResizing) state.vis.act.isResizing = false;
+        else actClose();
+    };
     ui.vis.act.cont.onmousewheel = function (e) {  // prevent scrolling of the main window while scrolling the frame content
       $evtTgt(e).scrollTop -= e.wheelDeltaY;
       $evtPrevDef(e);
     };
     
     ui.vis.act.title      = $("#act-title")        [0];
+    ui.vis.act.table      = $("#act-tbl")          [0];
     ui.vis.act.frame      = $("#act-frame")        [0];
     ui.vis.act.frameRec   = $("#act-frame-rec")    [0];
     ui.vis.act.recLst     = $("#act-rec-lst")      [0];
@@ -1267,6 +1283,16 @@ function initUI() {
   feMerge.append("svg:feMergeNode");
   feMerge.append("svg:feMergeNode").
     attr("in", "SourceGraphic");
+  
+  $( "#act-tbl" ).resizable({
+      resize: function( event, ui ) {
+          state.vis.act.isResizing = true;
+      },
+      alsoResize : '#act-frame,#act-frame-rec',
+      handles: "all"
+  });
+  //$( "#act-frame" ).resizable();
+  
 }
 
 
