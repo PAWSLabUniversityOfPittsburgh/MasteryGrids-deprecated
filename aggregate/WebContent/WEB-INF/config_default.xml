@@ -21,6 +21,7 @@
     <agg_reactiverec_threshold>0.7</agg_reactiverec_threshold> <!-- -1: let the recommendation server to decide, otherwise a number between 0 and 1 -->
     <agg_reactiverec_method>CSSIM</agg_reactiverec_method> <!-- leave empty to make recommendation server to use default -->
     <agg_reactiverec_max>5</agg_reactiverec_max>
+    <agg_line_rec_enabled>no</agg_line_rec_enabled>
 
 	<!-- VERBOSE -->
     <agg_verbose>yes</agg_verbose>
