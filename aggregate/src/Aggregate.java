@@ -1169,6 +1169,8 @@ public class Aggregate {
    			    try {cm.agg_reactiverec_max  = Integer.parseInt(pair[1]);} catch(Exception e) {}
     		if(pair[0].equalsIgnoreCase("proactiveRecMethod")) cm.agg_proactiverec_method = pair[1].trim();
     		if(pair[0].equalsIgnoreCase("reactiveRecMethod")) cm.agg_reactiverec_method = pair[1].trim();
+    		if(pair[0].equalsIgnoreCase("lineRecOn")) 
+   			    try {cm.agg_line_rec_enabled  = pair[1].equalsIgnoreCase("true");} catch(Exception e) {}
     	}
     }
     
@@ -1276,6 +1278,8 @@ public class Aggregate {
             		topics += "      \""+resourceName+"\":[],\n";
             	}
             }else{
+            	String lineRecOn = "";
+            	if(cm.agg_line_rec_enabled) lineRecOn = "&lineRec=1";
                 for(int i=0;i<content.length;i++){
                     String resourceName = resourceList.get(i)[0];
                     ArrayList<String> contentItems = content[i];
@@ -1284,7 +1288,7 @@ public class Aggregate {
                         for (String item : contentItems) {
                             String[] content_data = this.contentList.get(item);
                             topics += "        {id:\"" + item + "\",name:\""
-                                    + content_data[1] + "\",url:\"" + content_data[2] + "&svc=masterygrids"
+                                    + content_data[1] + "\",url:\"" + content_data[2] + lineRecOn + "&svc=masterygrids"
                                     + "\"},\n";
                         }
                         topics = topics.substring(0, topics.length() - 2); // get rid of

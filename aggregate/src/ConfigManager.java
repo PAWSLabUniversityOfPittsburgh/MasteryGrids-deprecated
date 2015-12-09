@@ -23,9 +23,11 @@ public class ConfigManager {
     public double agg_reactiverec_threshold;
     public String agg_reactiverec_method;
     public int agg_reactiverec_max;
+    public boolean agg_line_rec_enabled;
     
     public String agg_verbose;
     public String agg_include_null_users;
+    
     private static String config_string = "./WEB-INF/config.xml";
 
     public ConfigManager(HttpServlet servlet) {
@@ -50,6 +52,7 @@ public class ConfigManager {
                 agg_reactiverec_enabled = doc.getElementsByTagName("agg_reactiverec_enabled").item(0).getTextContent().trim().equalsIgnoreCase("yes");
                 agg_proactiverec_method = doc.getElementsByTagName("agg_proactiverec_method").item(0).getTextContent().trim();
                 agg_reactiverec_method = doc.getElementsByTagName("agg_reactiverec_method").item(0).getTextContent().trim();
+                agg_line_rec_enabled = doc.getElementsByTagName("agg_line_rec_enabled").item(0).getTextContent().trim().equalsIgnoreCase("yes");
                 try{agg_reactiverec_threshold = Double.parseDouble(doc.getElementsByTagName("agg_reactiverec_threshold").item(0).getTextContent().trim());}catch(Exception e){agg_reactiverec_threshold = -1.0;}
                 try{agg_proactiverec_threshold = Double.parseDouble(doc.getElementsByTagName("agg_proactiverec_threshold").item(0).getTextContent().trim());}catch(Exception e){agg_proactiverec_threshold = -1.0;}
                 try{agg_reactiverec_max = Integer.parseInt(doc.getElementsByTagName("agg_reactiverec_max").item(0).getTextContent().trim());}catch(Exception e){agg_reactiverec_max = -1;}
