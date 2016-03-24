@@ -131,7 +131,7 @@ public class PAWSUMInterfaceV2 implements UMInterface {
 
     	//System.out.println("GETTING THE KNOWLEDGE");
     	// 2. GENERATE CALLS FOR GET KNOWLEDGE LEVELS
-    	for(Map.Entry<String, String> calls : umSvcURLs.entrySet()){
+    	for(Map.Entry<String, String> calls : umSvcURLs.entrySet()){ //
     		
     		
     		String svcURL = calls.getKey();
@@ -141,7 +141,7 @@ public class PAWSUMInterfaceV2 implements UMInterface {
     		if(!svcURL.equalsIgnoreCase("none") && !svcURL.equalsIgnoreCase("unknown") && !svcURL.equalsIgnoreCase("NA")){
         		String json = "{\n    \"user-id\" : \""+usr+"\",\n    \"group-id\" : \""+grp+"\",\n    \"domain\" : \""+domain+"\",\n    \"content-list-by-provider\" : [  \n";
         		for(Map.Entry<String,String[]> provider : providers.entrySet()){
-        			if(provider.getValue()[0].equals(svcURL) && contentByProvider.get(provider.getKey()) != null){
+        			if(provider.getValue()[0] != null && provider.getValue()[0].equals(svcURL) && contentByProvider.get(provider.getKey()) != null){
         				json += "        {\"provider-id\" : \""+provider.getKey()+"\", \"content-list\" : ["+contentByProvider.get(provider.getKey())+"]},\n";
         			}
         		}

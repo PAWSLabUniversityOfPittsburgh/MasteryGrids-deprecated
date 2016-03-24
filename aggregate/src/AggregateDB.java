@@ -811,7 +811,7 @@ public class AggregateDB extends dbInterface {
             rs = stmt.executeQuery(query);
             while (rs.next()) {
                 String id = rs.getString("provider_id");
-            	String[] urls = new String[4];
+                String[] urls = new String[4];
           
                 urls[0] = rs.getString("um_svc_url");
                 urls[1] = rs.getString("activity_svc_url");
